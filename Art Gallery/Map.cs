@@ -46,7 +46,31 @@ namespace FormsPolygonGenerator
 
         private void populateLOSforReflexVertices()
         {
-
+            LineComparitor comp = new LineComparitor();
+            for (var i = 0; i < vertices.Count; i++)
+            {
+                vertices[i].LOS.Add(vertices[i]);
+                for (var j = 0; j < i; j++)
+                {
+                    for (var k = 0; k < vertices.Count; k++)
+                    {
+                        if (!vertices[i].LOS.Contains(vertices[j])){
+                            var blocked = false;
+                            if ((i != k) && (j != k) && (!blocked))
+                            {
+                                if(comp.DoLineSegmentsIntersect(vertices[i].x,vertices[i].y,vertices[j].x,vertices[j].y,vertices[k].x,vertices[k].y,vertices[(k+1)%vertices.Count].x,vertices[(k+1)%vertices.Count].y))
+                                {
+                                    blocked = true;
+                                }
+                            }
+                            if (!blocked)
+                            {
+                                vertices[i].LOS.Add(vertices[j]);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void performGA()
