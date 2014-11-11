@@ -15,6 +15,21 @@ namespace FormsPolygonGenerator
                    (yi <= yk || yj <= yk) && (yk <= yi || yk <= yj);
         }
 
+        public float distance(float xi, float yi, float xj, float yj)
+        {
+            var dx = xj - xi;
+            var dy = yj - yi;
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        public float angleBetween(float xi, float yi, float xj, float yj, float xk, float yk)
+        {
+            var P12 = distance(xi, yi, xj, yj);
+            var P13 = distance(xi,yi,xk,yk);
+            var P23 = distance(xj,yj,xk,yk);
+            return (float)Math.Acos((Math.Pow(P12, 2)+Math.Pow(P13,2)-Math.Pow(P23,2))/(2*P12*P13));
+        }
+
         int ComputeDirection(float xi, float yi, float xj, float yj,
                                      float xk, float yk)
         {
