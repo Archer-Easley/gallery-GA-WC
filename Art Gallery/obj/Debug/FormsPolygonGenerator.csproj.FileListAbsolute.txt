@@ -20,3 +20,7 @@ C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\bin\Debug\
 C:\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.exe.config
 C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.exe
 C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.pdb
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.csprojResolveAssemblyReference.cache
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.Form1.resources
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.Properties.Resources.resources
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.csproj.GenerateResource.Cache
