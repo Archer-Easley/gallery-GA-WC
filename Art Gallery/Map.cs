@@ -10,6 +10,7 @@ namespace FormsPolygonGenerator
     class Map
     {
         List<Vertex> vertices;
+        List<List<Vertex>> population;
 
         public Map()
         {
@@ -56,11 +57,10 @@ namespace FormsPolygonGenerator
 
         private void performWOC()
         {
-            WisdomOfCrowds woc = new WisdomOfCrowds();
+            WisdomOfCrowds woc = new WisdomOfCrowds(population, vertices.Count);
             woc.initializeAgreementList();
             woc.populateAgreementList();
             woc.createWOCSolution();
         }
-
     }
 }
