@@ -76,10 +76,8 @@ namespace FormsPolygonGenerator
                     }
                     unionSet.Clear();
                 }
-                foreach(Vertex v in temp.LOS)
-                {
-                    coveredVertices = coveredVertices.Union(temp.LOS).ToList();
-                }
+                coveredVertices = coveredVertices.Union(temp.LOS).ToList();
+                guardVertex.Add(temp);
             }
         }
     }
