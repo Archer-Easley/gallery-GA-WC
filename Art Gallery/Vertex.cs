@@ -51,6 +51,8 @@ namespace FormsPolygonGenerator
             LOS = new List<Vertex>(v.LOS);
             x = v.x;
             y = v.y;
+            ID = v.ID;
+            hasGuard = v.hasGuard;
         }
 
     }

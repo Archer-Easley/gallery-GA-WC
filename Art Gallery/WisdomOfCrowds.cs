@@ -10,6 +10,7 @@ namespace FormsPolygonGenerator
     {
         public List<List<Vertex>> population;
         public List<Agreement> agreementList;
+        public List<Vertex> guardVertex = new List<Vertex>();
 
         public WisdomOfCrowds(List<List<Vertex>> pop)
         {
@@ -33,15 +34,24 @@ namespace FormsPolygonGenerator
         {
             foreach(List<Vertex> lv in population)
             {
-                foreach(Vertex v in lv)
+                for(int i = 0; i < lv.Count; i++)
                 {
-                    
+                    if (lv[i].hasGuard)
+                        agreementList[i].freq++;
                 }
             }
         }
 
         public void createWOCSolution()
         {
+            //sort population by descending frequency
+            agreementList.OrderByDescending(x => x.freq);
+
+            //add first vertex
+            guardVertex.Add(agreementList[0].vert);
+            
+            //add successive vertices
+            while()
 
         }
     }
