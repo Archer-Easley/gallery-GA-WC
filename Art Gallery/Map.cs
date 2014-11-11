@@ -11,6 +11,7 @@ namespace FormsPolygonGenerator
     {
         List<Vertex> vertices;
         List<List<Vertex>> population;
+        public Random r = new Random();
         List<Vertex> reflexVertices;
 
         public Map()
@@ -26,7 +27,7 @@ namespace FormsPolygonGenerator
             performGA();
             performWOC();
         }
-        
+
         private void convertGUIPointsToInternalPoints(List<Point> GUI)
         {
             Vertex temp;
@@ -90,7 +91,9 @@ namespace FormsPolygonGenerator
 
         private void performGA()
         {
-
+            GeneticAlgorithm ga = new GeneticAlgorithm(r);
+            ga.performGA();
+            this.population = new List<List<Vertex>>(ga.population);
         }
 
         private void performWOC()

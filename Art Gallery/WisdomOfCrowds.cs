@@ -47,7 +47,7 @@ namespace FormsPolygonGenerator
 
         public void createWOCSolution()
         {
-            //sort population by descending frequency
+            //sort population by descending LOS count, frequency of vertex in the population
             agreementList.OrderByDescending(x => x.vert.LOS.Count).ThenByDescending(x => x.freq);
 
             //add first vertex
@@ -76,10 +76,8 @@ namespace FormsPolygonGenerator
                     }
                     unionSet.Clear();
                 }
-                foreach(Vertex v in temp.LOS)
-                {
-                    coveredVertices = coveredVertices.Union(temp.LOS).ToList();
-                }
+                coveredVertices = coveredVertices.Union(temp.LOS).ToList();
+                guardVertex.Add(temp);
             }
         }
     }
