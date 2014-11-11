@@ -17,3 +17,6 @@ C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\obj\Debug\
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\obj\Debug\FormsPolygonGenerator.csproj.GenerateResource.Cache
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\bin\Debug\FormsPolygonGenerator.exe
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\bin\Debug\FormsPolygonGenerator.pdb
+C:\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.exe.config
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.exe
+C:\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.pdb
