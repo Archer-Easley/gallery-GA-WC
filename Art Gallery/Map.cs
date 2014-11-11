@@ -11,6 +11,7 @@ namespace FormsPolygonGenerator
     {
         List<Vertex> vertices;
         List<List<Vertex>> population;
+        List<Vertex> reflexVertices;
 
         public Map()
         {
@@ -25,7 +26,7 @@ namespace FormsPolygonGenerator
             performGA();
             performWOC();
         }
-
+        
         private void convertGUIPointsToInternalPoints(List<Point> GUI)
         {
             Vertex temp;
@@ -42,7 +43,20 @@ namespace FormsPolygonGenerator
 
         private void identifyReflexVertices()
         {
-
+            LineComparitor comp = new LineComparitor();
+            for (var i = 0; i < vertices.Count; i++)
+            {
+                float theta = 0;
+                vertices[i].LOS.OrderBy(x => x.ID);
+                for (var j = 0; j < vertices[i].LOS.Count; j++)
+                {
+                    theta += comp.angleBetween(vertices[i].x, vertices[i].y, vertices[i].LOS[j].x, vertices[i].LOS[j].y, vertices[i].LOS[(j + 1) % vertices[i].LOS.Count].x, vertices[i].LOS[(j + 1) % vertices[i].LOS.Count].y);
+                }
+                if (theta >= Math.PI)
+                {
+                    reflexVertices.Add(vertices[i]);
+                }
+            }
         }
 
         private void populateLOSforReflexVertices()
