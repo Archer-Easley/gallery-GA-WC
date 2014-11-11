@@ -10,7 +10,7 @@ namespace FormsPolygonGenerator
     class Map
     {
         List<Vertex> vertices;
-        List<Vertex> reflexVertices;
+        List<List<Vertex>> population;
 
         public Map()
         {
@@ -20,8 +20,8 @@ namespace FormsPolygonGenerator
         public void Solve(List<Point> GUI)
         {
             convertGUIPointsToInternalPoints(GUI);
-            populateLOSforVertices();
             identifyReflexVertices();
+            populateLOSforReflexVertices();
             performGA();
             performWOC();
         }
@@ -45,11 +45,11 @@ namespace FormsPolygonGenerator
 
         }
 
-        private void populateLOSforVertices()
+        private void populateLOSforReflexVertices()
         {
             LineComparitor comp = new LineComparitor();
             for (var i = 0; i < vertices.Count; i++)
-            { 
+            {
                 vertices[i].LOS.Add(vertices[i]);
                 for (var j = 0; j < i; j++)
                 {
@@ -67,7 +67,6 @@ namespace FormsPolygonGenerator
                             if (!blocked)
                             {
                                 vertices[i].LOS.Add(vertices[j]);
-                                vertices[j].LOS.Add(vertices[i]);
                             }
                         }
                     }
@@ -82,11 +81,10 @@ namespace FormsPolygonGenerator
 
         private void performWOC()
         {
-            WisdomOfCrowds woc = new WisdomOfCrowds();
+            WisdomOfCrowds woc = new WisdomOfCrowds(population, vertices.Count);
             woc.initializeAgreementList();
             woc.populateAgreementList();
             woc.createWOCSolution();
         }
-
     }
 }
