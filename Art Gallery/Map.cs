@@ -11,6 +11,7 @@ namespace FormsPolygonGenerator
     {
         List<Vertex> vertices;
         List<List<Vertex>> population;
+        public Random r = new Random();
 
         public Map()
         {
@@ -76,7 +77,9 @@ namespace FormsPolygonGenerator
 
         private void performGA()
         {
-
+            GeneticAlgorithm ga = new GeneticAlgorithm(r);
+            ga.performGA();
+            this.population = new List<List<Vertex>>(ga.population);
         }
 
         private void performWOC()

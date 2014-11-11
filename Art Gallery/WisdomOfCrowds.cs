@@ -47,7 +47,7 @@ namespace FormsPolygonGenerator
 
         public void createWOCSolution()
         {
-            //sort population by descending frequency
+            //sort population by descending LOS count, frequency of vertex in the population
             agreementList.OrderByDescending(x => x.vert.LOS.Count).ThenByDescending(x => x.freq);
 
             //add first vertex

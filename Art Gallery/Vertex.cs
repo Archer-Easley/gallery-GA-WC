@@ -9,8 +9,8 @@ namespace FormsPolygonGenerator
 {
     class Vertex
     {
-        PointF location;
-        public List<Vertex> LOS;
+        PointF location = new PointF();
+        public List<Vertex> LOS = new List<Vertex>();
         public int ID;
         public bool hasGuard = false;
         public float x
@@ -40,11 +40,13 @@ namespace FormsPolygonGenerator
         {
 
         }
+
         public Vertex(float x, float y)
         {
             location.X = x;
             location.Y = y;
         }
+
         public Vertex(Vertex v)
         {
             location = v.location;
@@ -53,6 +55,14 @@ namespace FormsPolygonGenerator
             y = v.y;
             ID = v.ID;
             hasGuard = v.hasGuard;
+        }
+
+        public override bool Equals(Vertex v)
+        {
+            if (this.ID == v.ID)
+                return true;
+            else
+                return false;
         }
 
     }
