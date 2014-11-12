@@ -26,7 +26,7 @@ namespace FormsPolygonGenerator
         private void button2_Click(object sender, EventArgs e)
         {
             createPolygon();
-            map.Solve(points);
+            //map.Solve(points);
             panel1.Invalidate();
         }
 

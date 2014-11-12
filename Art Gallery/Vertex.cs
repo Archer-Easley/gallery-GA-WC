@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace FormsPolygonGenerator
 {
-    class Vertex
+    public class Vertex : IComparable<Vertex>
     {
         PointF location = new PointF();
         public List<Vertex> LOS = new List<Vertex>();
@@ -57,13 +57,27 @@ namespace FormsPolygonGenerator
             hasGuard = v.hasGuard;
         }
 
-        public override bool Equals(Vertex v)
+        // way to allow vertices to be compared
+        public int CompareTo(Vertex v)
         {
-            if (this.ID == v.ID)
-                return true;
-            else
-                return false;
+            return this.ID.CompareTo(v.ID);
         }
 
+        public override bool Equals(object v)
+        {
+            Vertex ver = v as Vertex;
+
+            return ver.ID == this.ID;
+
+            //if (this.ID == v.ID)
+            //    return true;
+            //else
+            //    return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

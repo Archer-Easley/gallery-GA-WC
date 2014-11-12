@@ -20,3 +20,12 @@ C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\Art Gallery\bin\Debug\
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.exe.config
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.exe
 C:\Users\starc_000\Documents\Fall 2014\CECS 545\Project 6\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.pdb
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.exe.config
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.exe
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.pdb
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.csprojResolveAssemblyReference.cache
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.Form1.resources
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.Properties.Resources.resources
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\obj\Debug\FormsPolygonGenerator.csproj.GenerateResource.Cache
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.exe
+C:\Users\Holden\Documents\GitHub\gallery-GA-WC\Art Gallery\bin\Debug\FormsPolygonGenerator.pdb
