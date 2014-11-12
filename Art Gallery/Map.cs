@@ -12,6 +12,7 @@ namespace FormsPolygonGenerator
         List<Vertex> vertices;
         List<List<Vertex>> population;
         public Random r = new Random();
+        List<Vertex> reflexVertices;
 
         public Map()
         {
@@ -23,6 +24,7 @@ namespace FormsPolygonGenerator
             convertGUIPointsToInternalPoints(GUI);
             identifyReflexVertices();
             populateLOSforReflexVertices();
+            calculateMinimumVisibilityIndependentSet();
             performGA();
             performWOC();
         }
@@ -43,7 +45,19 @@ namespace FormsPolygonGenerator
 
         private void identifyReflexVertices()
         {
-
+            LineComparitor comp = new LineComparitor();
+            for (var i = 0; i < vertices.Count; i++)
+            {
+                float theta = 0;
+                for (var j = 0; j < vertices[i].LOS.Count; j++)
+                {
+                    theta += comp.angleBetween(vertices[i].x, vertices[i].y, vertices[i].LOS[j].x, vertices[i].LOS[j].y, vertices[i].LOS[(j + 1) * vertices[i].LOS.Count].x, vertices[i].LOS[(j + 1) * vertices[i].LOS.Count].y);
+                }
+                if (theta >= Math.PI)
+                {
+                    reflexVertices.Add(vertices[i]);
+                }
+            }
         }
 
         private void populateLOSforReflexVertices()
@@ -52,15 +66,18 @@ namespace FormsPolygonGenerator
             for (var i = 0; i < vertices.Count; i++)
             {
                 vertices[i].LOS.Add(vertices[i]);
+                vertices[i].LOS.Add(vertices[(i + 1) % vertices.Count]);
+                vertices[i].LOS.Add(vertices[Math.Abs((i - 1) % vertices.Count)]);
                 for (var j = 0; j < i; j++)
                 {
-                    for (var k = 0; k < vertices.Count; k++)
+                    if (!vertices[i].LOS.Contains(vertices[j]))
                     {
-                        if (!vertices[i].LOS.Contains(vertices[j])){
+                        for (var k = 0; k < vertices.Count; k++)
+                        {
                             var blocked = false;
-                            if ((i != k) && (j != k) && (!blocked))
+                            if ((i != k && j != k) && !blocked)
                             {
-                                if(comp.DoLineSegmentsIntersect(vertices[i].x,vertices[i].y,vertices[j].x,vertices[j].y,vertices[k].x,vertices[k].y,vertices[(k+1)%vertices.Count].x,vertices[(k+1)%vertices.Count].y))
+                                if (comp.DoLineSegmentsIntersect(vertices[i].x, vertices[i].y, vertices[j].x, vertices[j].y, vertices[k].x, vertices[k].y, vertices[(k + 1) % vertices.Count].x, vertices[(k + 1) % vertices.Count].y))
                                 {
                                     blocked = true;
                                 }
@@ -74,6 +91,35 @@ namespace FormsPolygonGenerator
                 }
             }
         }
+
+        private void calculateMinimumVisibilityIndependentSet()
+        {
+            List<Vertex> convexVertices = new List<Vertex>(vertices.Except(reflexVertices));
+            List<Vertex> midpointVerticesOfConsecutiveReflexEdges = new List<Vertex>();
+            for (var i = 0; i < vertices.Count;i++)
+            {
+                if (reflexVertices.Contains(vertices[i]) && reflexVertices.Contains(vertices[(i+1)%vertices.Count]))
+                {
+                    var x = (vertices[i].x + vertices[(i+1)%vertices.Count].x)/2;
+                    var y = (vertices[i].y + vertices[(i+1)%vertices.Count].y)/2;
+                    midpointVerticesOfConsecutiveReflexEdges.Add(new Vertex(x,y));
+                }
+            }
+            List<Vertex> C = new List<Vertex>(convexVertices.Union(midpointVerticesOfConsecutiveReflexEdges));
+            List<Vertex> miniumGuardSet = new List<Vertex>();
+            for (var i = 0; i < C.Count; i++)
+            {
+                // determine coverage area
+            }
+            while (C.Count > 0)
+            {
+                // add smallest area vertex to minimumGuardSet
+                // remove that vertex from C
+                // remove any other vertices that cover any of the same area that is already in the minimum set
+            }
+        }
+
+
 
         private void performGA()
         {
