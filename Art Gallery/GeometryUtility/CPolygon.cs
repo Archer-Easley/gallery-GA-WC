@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GeometryUtility
 {
@@ -21,7 +23,15 @@ namespace GeometryUtility
 				return m_aVertices[index];
 			}
 		}
-		
+
+        public int numberOfVertices
+        {
+            get
+            {
+                return this.m_aVertices.Length;
+            }
+        }
+
 		public CPolygon()
 		{
 		
@@ -446,6 +456,45 @@ namespace GeometryUtility
 			for (int i=0; i<nVertices; i++)
 				points[i]=aTempPts[nVertices-1-i];	
 		}
- 
+
+        public List<CPoint2D> VisibilitySet(CPoint2D p)
+        {
+            List<CPoint2D> temp = new List<CPoint2D>();
+            for (var i = 0; i < m_aVertices.Length; i++)
+            {
+                if (Diagonal(p, this[i]))
+                {
+                    temp.Add(this[i]);
+                }
+            }
+            return temp;
+        }
+
+        public static bool IntersectedWith(CPolygon P1, CPolygon P2, bool includeVertices = false)
+        {
+            if (includeVertices)
+            {
+                List<CPoint2D> list_P1 = new List<CPoint2D>(P1.m_aVertices);
+                List<CPoint2D> list_P2 = new List<CPoint2D>(P2.m_aVertices);
+                if (list_P1.Union(list_P2).Count() > 0)
+                {
+                    return true;
+                }
+            }
+            for (var i = 0; i < P1.numberOfVertices; i++)
+            {
+                for (var j = 0; j < P2.numberOfVertices; j++)
+                {
+                    if (CLineSegment.IntersectedWith(new CLineSegment(P1[i], P1.NextPoint(P1[i])), new CLineSegment(P2[j], P2.NextPoint(P2[j]))))
+                    {
+                        if (!P1[i].Equals(P2[j]) && !P1[i].Equals(P2.NextPoint(P2[j])) && !P1.NextPoint(P1[i]).Equals(P2[j]) && !P1.NextPoint(P1[i]).Equals(P2.NextPoint(P2[j])))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
 	}		
 }

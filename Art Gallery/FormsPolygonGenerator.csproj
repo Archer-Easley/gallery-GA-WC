@@ -52,6 +52,11 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="GeneticAlgorithm.cs" />
+    <Compile Include="GeometryUtility\AnalyticGeometryException.cs" />
+    <Compile Include="GeometryUtility\CLine.cs" />
+    <Compile Include="GeometryUtility\CPoint2D.cs" />
+    <Compile Include="GeometryUtility\CPolygon.cs" />
+    <Compile Include="GeometryUtility\Definition.cs" />
     <Compile Include="LineComparitor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,6 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GeometryUtility\App.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

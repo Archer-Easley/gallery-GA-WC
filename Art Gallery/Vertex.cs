@@ -51,7 +51,6 @@ namespace FormsPolygonGenerator
         {
             location = v.location;
             LOS = new List<Vertex>(v.LOS);
-            coverage = new Polygon(v.coverage);
             x = v.x;
             y = v.y;
             ID = v.ID;
