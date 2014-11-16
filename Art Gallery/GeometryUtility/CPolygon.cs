@@ -221,8 +221,6 @@ namespace GeometryUtility
 		
 		If it is a diagonal, return true;
 		If it is not a diagonal, return false;
-		reference: www.swin.edu.au/astronomy/pbourke
-		/geometry/lineline2d
 		*********************************************/
 		public bool Diagonal(CPoint2D vertex1, CPoint2D vertex2)
 		{
@@ -266,8 +264,6 @@ namespace GeometryUtility
 		concave polygon
 
 		Restriction: the polygon is not self intersecting
-		Ref: www.swin.edu.au/astronomy/pbourke
-		/geometry/clockwise/index.html
 		********************************************/
 		public PolygonType GetPolygonType()
 		{
@@ -307,8 +303,6 @@ namespace GeometryUtility
 
 		/***************************************************
 		Check a Vertex is a principal vertex or not
-		ref. www-cgrl.cs.mcgill.ca/~godfried/teaching/
-		cg-projects/97/Ian/glossay.html
   
 		PrincipalVertex: a vertex pi of polygon P is a principal vertex if the
 		diagonal pi-1, pi+1 intersects the boundary of P only at pi-1 and pi+1.
@@ -395,7 +389,6 @@ namespace GeometryUtility
 			else
 				return PolygonDirection.Unknown;
   		}
-
 		
 		/*****************************************
 		To check given points make a clock-wise polygon or
