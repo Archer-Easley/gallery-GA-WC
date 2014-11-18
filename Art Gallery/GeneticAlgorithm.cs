@@ -8,131 +8,74 @@ namespace FormsPolygonGenerator
 {
     class GeneticAlgorithm
     {
-        public List<Organism> popOrg = new List<Organism>();
         public List<List<Vertex>> population = new List<List<Vertex>>();
         Random r;
-        int generationCount = 100;
 
-        public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount)
+        public GeneticAlgorithm(Random rand)
         {
             r = rand; //avoids having multiple instances of the Random class
-            Organism temp;
-            foreach(List<Vertex> lv in pop)
-            {
-                temp = new Organism(lv);
-                popOrg.Add(temp);
-            }
-            this.generationCount = tempGenCount;
         }
 
-        private void mutate(Organism points)
+        private void mutate(List<Vertex> points)
         {
-            int rand1, rand2;
+            int rand;
             do
             {
-                rand1 = r.Next(points.vertexList.Count); //loop until a vertex is found that is guarded
-            } while (points.vertexList[rand1].hasGuard == false);
+                rand = r.Next(points.Count); //loop until a vertex is found that is guarded
+            } while (points[rand].hasGuard == false);
 
-            points.vertexList[rand1].hasGuard = false; //remove the guard
+            points[rand].hasGuard = false; //remove the guard
 
             do
             {
-                rand2 = r.Next(points.vertexList.Count); //loop until a vertex is found that is not guarded
-            } while (points.vertexList[rand2].hasGuard == true && rand1 != rand2);
+                rand = r.Next(points.Count); //loop until a vertex is found that is not guarded
+            } while (points[rand].hasGuard == true);
 
-            points.vertexList[rand2].hasGuard = true; //add a guard to the vertex
+            points[rand].hasGuard = true; //add a guard to the vertex
         }
 
-        private void crossover(Organism points1, Organism points2)
+        private void crossover(List<Vertex> points1, List<Vertex> points2)
         {
             //create temporary copies
-            Organism temp1 = new Organism(points1);
-            Organism temp2 = new Organism(points2);
-            Organism temp1Orig = new Organism(points1);
+            List<Vertex> temp1 = new List<Vertex>(points1);
+            List<Vertex> temp2 = new List<Vertex>(points2);
+            List<Vertex> temp1Orig = new List<Vertex>(points1);
 
-            int randPoint = r.Next(temp1.vertexList.Count);
+            int randPoint = r.Next(temp1.Count);
 
             //swap items in first copy
             for (int i = 0; i < randPoint; i++)
             {
-                if (temp2.vertexList[i].hasGuard)
+                if (temp2[i].hasGuard)
                 {
-                    temp1.vertexList[i].hasGuard = true;
+                    temp1[i].hasGuard = true;
                 }
                 else
                 {
-                    temp1.vertexList[i].hasGuard = false;
+                    temp1[i].hasGuard = false;
                 }
             }
 
             //swap items in second array
             for (int i = 0; i < randPoint; i++)
             {
-                if (temp1Orig.vertexList[i].hasGuard)
+                if (temp1Orig[i].hasGuard)
                 {
-                    temp2.vertexList[i].hasGuard = true;
+                    temp2[i].hasGuard = true;
                 }
                 else
                 {
-                    temp2.vertexList[i].hasGuard = false;
+                    temp2[i].hasGuard = false;
                 }
             }
 
-            temp1.determineFitness();
-            temp2.determineFitness();
-
-            popOrg.Add(temp1);
-            popOrg.Add(temp2);
+            population.Add(temp1);
+            population.Add(temp2);
         }
 
         public void performGA()
         {
-            int randMutationIndex;
-            int randCrossoverIndex1;
-            int randCrossoverIndex2;
-            int randNumCrossovers = r.Next(popOrg.Count);
-            int origPopCount = popOrg.Count;
-
-            //initialize fitness for each organism
-            foreach(Organism o in popOrg)
-            {
-                o.determineFitness();
-            }
-
-            //iterate through generations
-            for (int j = 0; j < generationCount; j++)
-            {
-                //perform crossovers
-                for (int i = 0; i < randNumCrossovers; i++)
-                {
-                    do //loop insures indexes are different
-                    {
-                        randCrossoverIndex1 = r.Next(popOrg.Count);
-                        randCrossoverIndex2 = r.Next(popOrg.Count);
-                    } while (randCrossoverIndex1 == randCrossoverIndex2);
-
-                    crossover(popOrg[randCrossoverIndex1], popOrg[randCrossoverIndex2]);
-                }
-
-                //perform mutations
-                if (r.NextDouble() < .1)
-                {
-                    randMutationIndex = r.Next(popOrg.Count);
-                    mutate(popOrg[randMutationIndex]);
-                }
-
-                //sort by fitness
-                popOrg.OrderBy(x => x.fitness);
-
-                //remove least fit
-                popOrg.RemoveRange(origPopCount, popOrg.Count - origPopCount);
-            }
-
-            //populate population in form of List<List<Vertex>> to pass to presenter
-            foreach(Organism o in popOrg)
-            {
-                population.Add(o.vertexList);
-            }
+            //TODO: ADD IN CALLS TO MUTATE AND CROSSOVER FUNCTIONS DETERMINED BY RANDOM CHANCES
         }
     }
 }
