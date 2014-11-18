@@ -23,12 +23,12 @@ namespace FormsPolygonGenerator
             vertices = new List<Vertex>();
         }
 
-        public void Solve(List<Point> GUI)
+        public void Solve(List<Point> GUI, int generationCount)
         {
             convertGUIPointsToInternalPoints(GUI);
             generateLineOfSightForReflexVertices();
             minimalGuardSet();
-            //performGA();
+            //performGA(generationCount);
             //performWOC();
         }
 
@@ -190,9 +190,9 @@ namespace FormsPolygonGenerator
             }
         }
 
-        private void performGA()
+        private void performGA(int generationCount)
         {
-            GeneticAlgorithm ga = new GeneticAlgorithm(r);
+            GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount);
             ga.performGA();
             this.population = new List<List<Vertex>>(ga.population);
         }
