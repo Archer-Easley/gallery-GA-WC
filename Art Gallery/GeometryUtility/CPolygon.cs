@@ -236,34 +236,19 @@ namespace GeometryUtility
 		{
 			bool bDiagonal=false;
 			int nNumOfVertices=m_aVertices.Length;
+            CLineSegment L1 = new CLineSegment(vertex1,vertex2);
 			int j=0;
 			for (int i= 0; i<nNumOfVertices; i++) //each point
 			{
 				bDiagonal=true;
 				j= (i+1) % nNumOfVertices;  //next point of i
-        
-				//Diagonal line:
-				double x1=vertex1.X;
-				double y1=vertex1.Y;
-				double x2=vertex1.X;
-				double y2=vertex1.Y;
-
-				//CPolygon line:
-				double x3=m_aVertices[i].X;
-				double y3=m_aVertices[i].Y;
-				double x4=m_aVertices[j].X;
-				double y4=m_aVertices[j].Y;
-
-				double de=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);
-				double ub=-1;
-				
-				if (Math.Abs(de-0)>ConstantValue.SmallValue)  //lines are not parallel
-					ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/de;
-
-				if ((ub> 0) && (ub<1))
-				{
-					bDiagonal=false;
-				}
+                
+                CLineSegment L2 = new CLineSegment(this[i],this[j]);
+                
+                if (L1.IntersectedWith(L2))
+                {
+                    bDiagonal = false;
+                }
 			}
 			return bDiagonal;
 		}
@@ -465,6 +450,21 @@ namespace GeometryUtility
                 if (Diagonal(p, this[i]))
                 {
                     temp.Add(this[i]);
+                    if (PolygonVertexType(this[i]).Equals(VertexType.ConvexPoint))
+                    {
+                        var line = new CLine(p, this[i]);
+                        for (var j = 0; j < m_aVertices.Length; j++)
+                        {
+                            if (j != i || j != VertexIndex(p))
+                            {
+                                var intersection = line.IntersectionWith(new CLine(this[j], this.NextPoint(this[j])));
+                                if (intersection.InLine(new CLineSegment(this[j], this.NextPoint(this[j]))) && !temp.Contains(intersection))
+                                {
+                                    temp.Add(intersection);
+                                }
+                            }
+                        }
+                    }
                 }
             }
             return temp;
@@ -472,29 +472,49 @@ namespace GeometryUtility
 
         public static bool IntersectedWith(CPolygon P1, CPolygon P2, bool includeVertices = false)
         {
+            bool bIntersect = false;
             if (includeVertices)
             {
                 List<CPoint2D> list_P1 = new List<CPoint2D>(P1.m_aVertices);
                 List<CPoint2D> list_P2 = new List<CPoint2D>(P2.m_aVertices);
                 if (list_P1.Union(list_P2).Count() > 0)
                 {
-                    return true;
+                    bIntersect = true; ;
                 }
             }
             for (var i = 0; i < P1.numberOfVertices; i++)
             {
+                var L1 = new CLineSegment(P1[i],P1.NextPoint(P1[i]));
                 for (var j = 0; j < P2.numberOfVertices; j++)
                 {
-                    if (CLineSegment.IntersectedWith(new CLineSegment(P1[i], P1.NextPoint(P1[i])), new CLineSegment(P2[j], P2.NextPoint(P2[j]))))
+                    var L2 = new CLineSegment(P2[j], P2.NextPoint(P2[j]));
+                    if (L1.IntersectedWith(L2))
                     {
-                        if (!P1[i].Equals(P2[j]) && !P1[i].Equals(P2.NextPoint(P2[j])) && !P1.NextPoint(P1[i]).Equals(P2[j]) && !P1.NextPoint(P1[i]).Equals(P2.NextPoint(P2[j])))
-                        {
-                            return true;
-                        }
+                        bIntersect = true; ;
                     }
                 }
             }
-            return false;
+            if (!bIntersect)
+            {
+                var numberOfIntersection = 0;
+                for (var i = 0; i < P1.numberOfVertices; i++)
+                {
+                    var L1 = new CLineSegment(P1[i], P1.NextPoint(P1[i]));
+                    for (var j = 0; j < P2.numberOfVertices; j++)
+                    {
+                        var L2 = new CLineSegment(P2[j], P2.NextPoint(P2[j]));
+                        if (CLineSegment.LinesEqual(L1, L2))
+                        {
+                            numberOfIntersection++;
+                        }
+                    }
+                }
+                if (numberOfIntersection == P1.numberOfVertices && numberOfIntersection == P2.numberOfVertices)
+                {
+                    bIntersect = true;
+                }
+            }
+            return bIntersect;
         }
 	}		
 }

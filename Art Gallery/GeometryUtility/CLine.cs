@@ -214,7 +214,7 @@ namespace GeometryUtility
 		 Calculate intersection point of two lines
 		 if two lines are parallel, return null
 		 * ************************************/
-		public CPoint2D IntersecctionWith(CLine line)
+		public CPoint2D IntersectionWith(CLine line)
 		{
 			CPoint2D point=new CPoint2D();
 			double a1=this.a;
@@ -461,29 +461,27 @@ namespace GeometryUtility
 		*********************************************************/
 		public  bool IntersectedWith(CLineSegment line)
 		{
-			double x1=this.m_startPoint.X;
-			double y1=this.m_startPoint.Y;
-			double x2=this.m_endPoint.X;
-			double y2=this.m_endPoint.Y;
-			double x3=line.m_startPoint.X;
-			double y3=line.m_startPoint.Y;
-			double x4=line.m_endPoint.X;
-			double y4=line.m_endPoint.Y;
+            double x1 = this.m_startPoint.X;
+            double y1 = this.m_startPoint.Y;
+            double x2 = this.m_endPoint.X;
+            double y2 = this.m_endPoint.Y;
+            double x3 = line.m_startPoint.X;
+            double y3 = line.m_startPoint.Y;
+            double x4 = line.m_endPoint.X;
+            double y4 = line.m_endPoint.Y;
 
-			double de=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);
-			//if de<>0 then //lines are not parallel
-			if (Math.Abs(de-0)<ConstantValue.SmallValue) //not parallel
-			{
-				double ua=((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))/de;
-				double ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/de;
-
-				if ((ub> 0) && (ub<1))
-					return true;
-						else
-					return false;
-			}
-			else	//lines are parallel
-				return false;
+            double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+            //if de<>0 then //lines are not parallel
+            if (Math.Abs(de - 0) > ConstantValue.SmallValue) //not parallel
+            {
+                double r = ((y1 - y3) * (x4 - x3)) - ((x1 - x3) * (y4 - y3))/ de;
+                double s = ((y1 - y3) * (x2 - x1)) - ((x1 - x3) * (y2 - y1)) / de;
+                return (r >= 0 && r <= 1) && (s >= 0 && s <= 1);
+             }
+            else
+            {
+                return false;
+            };
 		}
 
         /********************************************************
@@ -504,7 +502,7 @@ namespace GeometryUtility
 
                 double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
                 //if de<>0 then //lines are not parallel
-                if (Math.Abs(de - 0) < ConstantValue.SmallValue) //not parallel
+                if (Math.Abs(de - 0) > ConstantValue.SmallValue) //not parallel
                 {
                     double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / de;
                     double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / de;
@@ -520,31 +518,20 @@ namespace GeometryUtility
                 return null;
         }
 
-        public static bool IntersectedWith(CLineSegment line1, CLineSegment line2)
+        public static bool LinesEqual(CLineSegment line1, CLineSegment line2)
         {
-            double x1 = line1.m_startPoint.X;
-            double y1 = line1.m_startPoint.Y;
-            double x2 = line1.m_endPoint.X;
-            double y2 = line1.m_endPoint.Y;
-            double x3 = line2.m_startPoint.X;
-            double y3 = line2.m_startPoint.Y;
-            double x4 = line2.m_endPoint.X;
-            double y4 = line2.m_endPoint.Y;
-
-            double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-            //if de<>0 then //lines are not parallel
-            if (Math.Abs(de - 0) < ConstantValue.SmallValue) //not parallel
+            if (line1.StartPoint == line2.StartPoint && line1.EndPoint == line2.EndPoint)
             {
-                double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / de;
-                double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / de;
-
-                if ((ub > 0) && (ub < 1))
-                    return true;
-                else
-                    return false;
+                return true;
             }
-            else	//lines are parallel
+            else if (line1.EndPoint == line2.StartPoint && line1.StartPoint == line2.EndPoint)
+            {
+                return true;
+            }
+            else
+            {
                 return false;
+            }
         }
 	}
 }
