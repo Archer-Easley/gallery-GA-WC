@@ -18,6 +18,7 @@ namespace FormsPolygonGenerator
         List<CPolygon> GuardAreas = new List<CPolygon>();
         Map map = new Map();
         Random r = new Random();
+        bool init = false;
 
         public Form1()
         {
@@ -26,10 +27,12 @@ namespace FormsPolygonGenerator
             tb_numPoints.Text = "27";
             panel1.BackColor = Color.White;
             tb_generationCount.Text = "100";
+            textBox1.Text = "0";
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            init = true;
             createPolygon();
             //createTestingGuardArea(); //creates two test GuardAreas
             //ExportPointListCSV();
@@ -75,9 +78,17 @@ namespace FormsPolygonGenerator
                 b = new SolidBrush(names[i]);
                 g.FillPolygon(b, temp.ToArray());
             }
+
+            //Fill vertex in with red if it's a guard
+            if(init)
+            {
+                SolidBrush br = new SolidBrush(Color.Red);
+                g.FillEllipse(br, points[int.Parse(textBox1.Text)].X, points[int.Parse(textBox1.Text)].Y, 5, 5);
+            }
         }
 
         #region Graphics Helpers
+
         private void createPolygon()
         {
             points.Clear();
@@ -86,7 +97,7 @@ namespace FormsPolygonGenerator
             int startY = (panel1.Location.Y + panel1.Size.Height) / 2;
             int endX = panel1.Size.Width - panel1.Location.X;
             int rangeX = endX - startX;
-            int rangeY = startY;
+            int rangeY = panel1.Size.Height / 2;
             int division = rangeX / ((NumPoints / 2));
 
             //add first point
@@ -164,6 +175,20 @@ namespace FormsPolygonGenerator
             dataGridView1.DataSource = table;
         }
 
+        private CPoint2D[] convertToGeometryUtilityPolygon()
+        {
+            List<CPoint2D> tempList = new List<CPoint2D>();
+            CPoint2D temp;
+            foreach(Point p in points)
+            {
+                temp = new CPoint2D();
+                temp.X = p.X;
+                temp.Y = p.Y;
+                tempList.Add(temp);
+            }
+            return tempList.ToArray();
+        }
+
         #endregion
 
         #region testing
@@ -215,6 +240,18 @@ namespace FormsPolygonGenerator
         }
 
         #endregion
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CPolygon temp = new CPolygon(convertToGeometryUtilityPolygon()); //creates total polygon
+            List<CPoint2D> tempList = new List<CPoint2D>();
+
+            tempList = temp.VisibilitySet(temp[int.Parse(textBox1.Text) % temp.numberOfVertices]); //if guard is at this vertex, generate a list of points that creates the polygon
+            CPolygon guardArea = new CPolygon(tempList.ToArray());
+
+            GuardAreas.Add(guardArea);
+            panel1.Invalidate();
+        }
 
     }
 }
