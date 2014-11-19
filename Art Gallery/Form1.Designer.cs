@@ -33,12 +33,14 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btn_NextGuard = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btn_showArea = new System.Windows.Forms.Button();
             this.tb_generationCount = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btn_previousGuard = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
@@ -82,9 +84,11 @@
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.btn_previousGuard);
+            this.groupBox1.Controls.Add(this.btn_NextGuard);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.btn_showArea);
             this.groupBox1.Controls.Add(this.tb_generationCount);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.tb_numPoints);
@@ -92,9 +96,45 @@
             this.groupBox1.Controls.Add(this.btn_draw);
             this.groupBox1.Location = new System.Drawing.Point(1120, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 277);
+            this.groupBox1.Size = new System.Drawing.Size(91, 288);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
+            // 
+            // btn_NextGuard
+            // 
+            this.btn_NextGuard.Location = new System.Drawing.Point(7, 223);
+            this.btn_NextGuard.Name = "btn_NextGuard";
+            this.btn_NextGuard.Size = new System.Drawing.Size(75, 23);
+            this.btn_NextGuard.TabIndex = 10;
+            this.btn_NextGuard.Text = "Next Guard";
+            this.btn_NextGuard.UseVisualStyleBackColor = true;
+            this.btn_NextGuard.Click += new System.EventHandler(this.button2_Click_1);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(7, 167);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(72, 20);
+            this.textBox1.TabIndex = 9;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 150);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(36, 13);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Guard";
+            // 
+            // btn_showArea
+            // 
+            this.btn_showArea.Location = new System.Drawing.Point(6, 193);
+            this.btn_showArea.Name = "btn_showArea";
+            this.btn_showArea.Size = new System.Drawing.Size(75, 23);
+            this.btn_showArea.TabIndex = 7;
+            this.btn_showArea.Text = "Show Area";
+            this.btn_showArea.UseVisualStyleBackColor = true;
+            this.btn_showArea.Click += new System.EventHandler(this.button1_Click);
             // 
             // tb_generationCount
             // 
@@ -121,31 +161,15 @@
             this.dataGridView1.Size = new System.Drawing.Size(200, 289);
             this.dataGridView1.TabIndex = 6;
             // 
-            // button1
+            // btn_previousGuard
             // 
-            this.button1.Location = new System.Drawing.Point(6, 248);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 7;
-            this.button1.Text = "Show Area";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 185);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(36, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Guard";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(7, 202);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(72, 20);
-            this.textBox1.TabIndex = 9;
+            this.btn_previousGuard.Location = new System.Drawing.Point(7, 253);
+            this.btn_previousGuard.Name = "btn_previousGuard";
+            this.btn_previousGuard.Size = new System.Drawing.Size(75, 23);
+            this.btn_previousGuard.TabIndex = 11;
+            this.btn_previousGuard.Text = "Last Guard";
+            this.btn_previousGuard.UseVisualStyleBackColor = true;
+            this.btn_previousGuard.Click += new System.EventHandler(this.btn_previousGuard_Click);
             // 
             // Form1
             // 
@@ -174,9 +198,11 @@
         private System.Windows.Forms.TextBox tb_generationCount;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_showArea;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btn_NextGuard;
+        private System.Windows.Forms.Button btn_previousGuard;
     }
 }
 

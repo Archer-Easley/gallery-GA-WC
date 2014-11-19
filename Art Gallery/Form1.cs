@@ -28,6 +28,8 @@ namespace FormsPolygonGenerator
             panel1.BackColor = Color.White;
             tb_generationCount.Text = "100";
             textBox1.Text = "0";
+            this.Name = "Art Gallery";
+            this.Text = "Art Gallery";
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -46,23 +48,12 @@ namespace FormsPolygonGenerator
         {
             Graphics g = panel1.CreateGraphics();
 
-            for (int i = 0; i < points.Count; i++)
-            {
-                g.DrawEllipse(Pens.Black, points[i].X, points[i].Y, 5, 5);
-            }
-
-            //draw the lines
-            for (int i = 0; i < points.Count - 1; i++)
-            {
-                g.DrawLine(Pens.Black, points[i], points[i + 1]);
-            }
-
             //get all necessary colors
             SolidBrush b;
             KnownColor[] knownNames = (KnownColor[])Enum.GetValues(typeof(KnownColor));
             List<Color> names = new List<Color>();
             Color tempColor;
-            for(int i = 0; i < GuardAreas.Count; i++)
+            for (int i = 0; i < GuardAreas.Count; i++)
             {
                 tempColor = new Color();
                 tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
@@ -72,18 +63,31 @@ namespace FormsPolygonGenerator
             List<PointF> temp;
 
             //draw the guard Areas
-            for(int i = 0; i < GuardAreas.Count; i++)
+            for (int i = 0; i < GuardAreas.Count; i++)
             {
                 temp = new List<PointF>(convertToGUIPolygon(GuardAreas[i]));
                 b = new SolidBrush(names[i]);
                 g.FillPolygon(b, temp.ToArray());
             }
 
+            //draw the lines
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                g.DrawLine(Pens.Black, points[i], points[i + 1]);
+            }
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                g.DrawEllipse(Pens.Black, points[i].X - 5, points[i].Y - 5, 10, 10);
+                SolidBrush br = new SolidBrush(Color.Black);
+                g.FillEllipse(br, points[i].X - 5, points[i].Y - 5, 10, 10);
+            }
+
             //Fill vertex in with red if it's a guard
-            if(init)
+            if (init)
             {
                 SolidBrush br = new SolidBrush(Color.Red);
-                g.FillEllipse(br, points[int.Parse(textBox1.Text)].X, points[int.Parse(textBox1.Text)].Y, 5, 5);
+                g.FillEllipse(br, points[int.Parse(textBox1.Text)].X - 5, points[int.Parse(textBox1.Text)].Y - 5, 10, 10);
             }
         }
 
@@ -243,6 +247,50 @@ namespace FormsPolygonGenerator
 
         private void button1_Click(object sender, EventArgs e)
         {
+            GuardAreas.Clear();
+            CPolygon temp = new CPolygon(convertToGeometryUtilityPolygon()); //creates total polygon
+            List<CPoint2D> tempList = new List<CPoint2D>();
+
+            tempList = temp.VisibilitySet(temp[int.Parse(textBox1.Text) % temp.numberOfVertices]); //if guard is at this vertex, generate a list of points that creates the polygon
+            CPolygon guardArea = new CPolygon(tempList.ToArray());
+
+            GuardAreas.Add(guardArea);
+            panel1.Invalidate();
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            GuardAreas.Clear();
+            //increment guard
+            int tempGuard;
+            tempGuard = (int.Parse(textBox1.Text) + 1) % (points.Count - 1);
+            textBox1.Text = tempGuard.ToString();
+
+            CPolygon temp = new CPolygon(convertToGeometryUtilityPolygon()); //creates total polygon
+            List<CPoint2D> tempList = new List<CPoint2D>();
+
+            tempList = temp.VisibilitySet(temp[int.Parse(textBox1.Text) % temp.numberOfVertices]); //if guard is at this vertex, generate a list of points that creates the polygon
+            CPolygon guardArea = new CPolygon(tempList.ToArray());
+
+            GuardAreas.Add(guardArea);
+            panel1.Invalidate();
+        }
+
+        private void btn_previousGuard_Click(object sender, EventArgs e)
+        {
+            GuardAreas.Clear();
+            //decrement guard
+            if(textBox1.Text == "0")
+            {
+                textBox1.Text = (points.Count - 2).ToString();
+            }
+            else
+            {
+                int tempGuard;
+                tempGuard = (int.Parse(textBox1.Text) - 1) % (points.Count - 1);
+                textBox1.Text = tempGuard.ToString();
+            }
+
             CPolygon temp = new CPolygon(convertToGeometryUtilityPolygon()); //creates total polygon
             List<CPoint2D> tempList = new List<CPoint2D>();
 
