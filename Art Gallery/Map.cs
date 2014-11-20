@@ -52,21 +52,21 @@ namespace FormsPolygonGenerator
             //vertices.ToString();
         }
 
-        private void generateLineOfSightForReflexVertices()
-        {
-            for (var i = 0; i < polygon.numberOfVertices; i++)
-            {
-                if (polygon.PolygonVertexType(polygon[i]).Equals(VertexType.ConcavePoint))
-                {
-                    reflexVertices.Add(new Vertex((float) polygon[i].X, (float)polygon[i].Y));
-                    var temp = polygon.VisibilitySet(polygon[i]);
-                    for (var j = 0; j < temp.Count - 1; j++)
-                    {
-                        reflexVertices[reflexVertices.Count-1].LOS.Add(new Vertex((float)temp[j].X, (float)temp[j].Y));
-                    }
-                }
-            }
-        }
+        //private void generateLineOfSightForReflexVertices()
+        //{
+        //    for (var i = 0; i < polygon.numberOfVertices; i++)
+        //    {
+        //        if (polygon.PolygonVertexType(polygon[i]).Equals(VertexType.ConcavePoint))
+        //        {
+        //            reflexVertices.Add(new Vertex((float) polygon[i].X, (float)polygon[i].Y));
+        //            var temp = polygon.VisibilitySet(polygon[i]);
+        //            for (var j = 0; j < temp.Count - 1; j++)
+        //            {
+        //                reflexVertices[reflexVertices.Count-1].LOS.Add(new Vertex((float)temp[j].X, (float)temp[j].Y));
+        //            }
+        //        }
+        //    }
+        //}
 
         //private void identifyReflexVertices()
         //{
@@ -199,14 +199,14 @@ namespace FormsPolygonGenerator
 
         private void performGA(int generationCount)
         {
-            GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount);
+            GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount, polygon);
             ga.performGA();
             this.population = new List<List<Vertex>>(ga.population);
         }
 
         private void performWOC()
         {
-            WisdomOfCrowds woc = new WisdomOfCrowds(population, vertices.Count);
+            WisdomOfCrowds woc = new WisdomOfCrowds(population, vertices.Count, polygon);
             woc.initializeAgreementList();
             woc.populateAgreementList();
             woc.createWOCSolution();
