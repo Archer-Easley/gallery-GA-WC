@@ -10,7 +10,7 @@ namespace GeometryUtility
 	public class CPolygon
 	{
 		
-		private CPoint2D[] m_aVertices;
+		public CPoint2D[] m_aVertices;
 
 		public CPoint2D   this[int index] 
 		{
@@ -568,34 +568,165 @@ namespace GeometryUtility
                     }
                 }
             }
-            for (var i = 0; i < m_aVertices.Length; i++)
+            var mynewList = new List<CPoint2D>();
+            if (intersections.Count > 2)
             {
-                for (var j = 0; j < intersections.Count; j++)
-                {
-                    if (intersections[j].InLine(new CLineSegment(this[i], NextPoint(this[i]))))
-                    {
-                        if (VertexIndex(NextPoint(this[i])) == 0)
-                        {
-                            temp.Add(intersections[j]);
-                        }
-                        else 
-                        {
-                            try
-                            {
-                                temp.Insert(temp.IndexOf(temp.First(x => VertexIndex(x) > VertexIndex(this[i]))), intersections[j]);
-                            }
-                            catch
-                            {
-                                temp.Add(intersections[j]);
-                            }
-                        }
+                var PTemp = new CPolygon(temp.ToArray());
+                var PIntersections = new CPolygon(intersections.ToArray());
+                mynewList = this.JoinPolygon(PTemp, PIntersections);
+            }
+            else
+            {
+                var PTemp = new CPolygon(temp.ToArray());
+                mynewList = this.JoinPolygon(PTemp, intersections);
+            }
+            //for (var i = 0; i < m_aVertices.Length; i++)
+            //{
+            //    for (var j = 0; j < intersections.Count; j++)
+            //    {
+            //        if (intersections[j].InLine(new CLineSegment(this[i], NextPoint(this[i]))))
+            //        {
+            //            if (VertexIndex(NextPoint(this[i])) == 0)
+            //            {
+            //                temp.Add(intersections[j]);
+            //            }
+            //            else 
+            //            {
+            //                try
+            //                {
+            //                    temp.Insert(temp.IndexOf(temp.First(x => VertexIndex(x) > VertexIndex(this[i]))), intersections[j]);
+            //                }
+            //                catch
+            //                {
+            //                    temp.Add(intersections[j]);
+            //                }
+            //            }
                         
-                        intersections.RemoveAt(j);
+            //            intersections.RemoveAt(j);
+            //            j--;
+            //        }
+            //    }
+            //}
+            return mynewList;
+        }
+
+        public List<CPoint2D> JoinPolygon(CPolygon P1, CPolygon P2)
+        {
+            List<CPoint2D> LP1 = new List<CPoint2D>(P1.m_aVertices);
+            List<CPoint2D> LP2 = new List<CPoint2D>(P2.m_aVertices);
+            List<CPoint2D> Union = new List<CPoint2D>(LP1.Union(LP2));
+            List<CPoint2D> combo = new List<CPoint2D>();
+            for (var i = 0; i < this.m_aVertices.Length; i++)
+            {
+                if (Union.Contains(m_aVertices[i]))
+                {
+                    if (!combo.Contains(m_aVertices[i]))
+                    {
+                        combo.Add(m_aVertices[i]);
+                    }
+                    Union.Remove(m_aVertices[i]);
+                }
+                CLineSegment line = new CLineSegment(m_aVertices[i], NextPoint(m_aVertices[i]));
+                List<CPoint2D> PointsOnLine = new List<CPoint2D>(Union.FindAll(x => x.InLine(line) && !this.PolygonVertex(x)));
+                if (PointsOnLine.Count > 0)
+                {
+                    if (line.GetLineAngle() > 0)
+                    {
+                        if (line.VerticalLine())
+                        {
+                            // order by y
+                        }
+                        else if (line.GetYmax() == line.StartPoint.Y)
+                        {
+                            PointsOnLine.OrderByDescending(x => x.Y);
+                        }
+                        else
+                        {
+                            PointsOnLine.OrderBy(x => x.Y);
+                        }
+                    }
+                    else if (line.GetLineAngle() < 0)
+                    {
+                        if (line.GetYmax() == line.StartPoint.Y)
+                        {
+                            PointsOnLine.OrderByDescending(x => x.Y);
+                        }
+                        else
+                        {
+                            PointsOnLine.OrderBy(x => x.Y);
+                        }
+                    }
+                }
+                for (var j = 0; j < PointsOnLine.Count; j++)
+                {
+                    if (!combo.Contains(PointsOnLine[j]))
+                    {
+                        combo.Add(PointsOnLine[j]);
+                        PointsOnLine.Remove(PointsOnLine[j]);
                         j--;
                     }
                 }
             }
-            return temp;
+            return combo;
+        }
+
+        public List<CPoint2D> JoinPolygon(CPolygon P1, List<CPoint2D> L1)
+        {
+            List<CPoint2D> LP1 = new List<CPoint2D>(P1.m_aVertices);
+            List<CPoint2D> Union = new List<CPoint2D>(LP1.Union(L1));
+            List<CPoint2D> combo = new List<CPoint2D>();
+            for (var i = 0; i < this.m_aVertices.Length; i++)
+            {
+                if (Union.Contains(m_aVertices[i]))
+                {
+                    if (!combo.Contains(m_aVertices[i]))
+                    {
+                        combo.Add(m_aVertices[i]);
+                    }
+                    Union.Remove(m_aVertices[i]);
+                }
+                CLineSegment line = new CLineSegment(m_aVertices[i], NextPoint(m_aVertices[i]));
+                List<CPoint2D> PointsOnLine = new List<CPoint2D>(Union.FindAll(x => x.InLine(line) && !this.PolygonVertex(x)));
+                if (PointsOnLine.Count > 0)
+                {
+                    if (line.GetLineAngle() > 0)
+                    {
+                        if (line.VerticalLine())
+                        {
+                            // order by y
+                        }
+                        else if (line.GetYmax() == line.StartPoint.Y)
+                        {
+                            PointsOnLine.OrderByDescending(x => x.Y);
+                        }
+                        else
+                        {
+                            PointsOnLine.OrderBy(x => x.Y);
+                        }
+                    }
+                    else if (line.GetLineAngle() < 0)
+                    {
+                        if (line.GetYmax() == line.StartPoint.Y)
+                        {
+                            PointsOnLine.OrderByDescending(x => x.Y);
+                        }
+                        else
+                        {
+                            PointsOnLine.OrderBy(x => x.Y);
+                        }
+                    }
+                }
+                for (var j = 0; j < PointsOnLine.Count; j++)
+                {
+                    if (!combo.Contains(PointsOnLine[j]))
+                    {
+                        combo.Add(PointsOnLine[j]);
+                        PointsOnLine.Remove(PointsOnLine[j]);
+                        j--;
+                    }
+                }
+            }
+            return combo;
         }
 
         public static bool IntersectedWith(CPolygon P1, CPolygon P2, bool includeVertices = false)
