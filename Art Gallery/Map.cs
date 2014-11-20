@@ -170,6 +170,7 @@ namespace FormsPolygonGenerator
                 var smallestArea = double.MaxValue;
                 var smallest = new CPoint2D();
                 var smallestPolygon = new CPolygon();
+                var runningPolygon = new CPolygon();
                 for (var i = 0; i < C.Count; i++)
                 {
                     var temp = new CPolygon(polygon.VisibilitySet(C[i]).ToArray());
@@ -181,6 +182,7 @@ namespace FormsPolygonGenerator
                         smallestPolygon = temp;
                     }
                 }
+                //runningPolygon = new CPolygon(polygon.JoinPolygons(runningPolygon, smallestPolygon));
                 minimumGuardSet.Add(smallest);
                 C.Remove(smallest);
                 for (var i = 0; i < C.Count; i++)
