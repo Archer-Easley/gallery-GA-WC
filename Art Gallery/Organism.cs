@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GeometryUtility;
 
 namespace FormsPolygonGenerator
 {
@@ -10,6 +11,8 @@ namespace FormsPolygonGenerator
     {
         public List<Vertex> vertexList;
         public int fitness = 0;
+        public CPolygon unionedPolygon;
+        public double polygonArea;
 
         public Organism(List<Vertex> list)
         {
@@ -35,6 +38,25 @@ namespace FormsPolygonGenerator
                 if (v.hasGuard == true)
                     fitness++;
             }
+        }
+
+        public void getUnionedPolygon(CPolygon map)
+        {
+            bool firstGuard = true;
+            CPolygon temp;
+            foreach(Vertex v in vertexList)
+            {
+                if(v.hasGuard && firstGuard)
+                {
+                    temp = new CPolygon(v.LOS.m_aVertices);
+                }
+                else if(v.hasGuard)
+                {
+                    temp = new CPolygon(map.JoinPolygons(temp, v.LOS).toArray());
+                }
+            }
+            unionedPolygon = temp;
+            polygonArea = temp.PolygonArea();
         }
     }
 }

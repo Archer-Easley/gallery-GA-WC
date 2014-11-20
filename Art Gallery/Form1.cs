@@ -16,7 +16,6 @@ namespace FormsPolygonGenerator
     {
         List<Point> points = new List<Point>();
         List<CPolygon> GuardAreas = new List<CPolygon>();
-        Map map = new Map();
         Random r = new Random();
         bool init = false;
 
@@ -35,8 +34,8 @@ namespace FormsPolygonGenerator
         private void button2_Click(object sender, EventArgs e)
         {
             init = true;
+            Map map = new Map();
             createPolygon();
-            //createTestingGuardArea(); //creates two test GuardAreas
             //ExportPointListCSV();
             populateDataGridView();
             //map.Solve(points, int.Parse(tb_generationCount.Text));
@@ -75,6 +74,10 @@ namespace FormsPolygonGenerator
             {
                 g.DrawLine(Pens.Black, points[i], points[i + 1]);
             }
+
+            //draw final connection
+            if(init)
+                g.DrawLine(Pens.Black, points[points.Count - 1], points[0]);
 
             for (int i = 0; i < points.Count; i++)
             {
@@ -147,8 +150,6 @@ namespace FormsPolygonGenerator
                     points.Add(temp);
                 }
             }
-
-            points.Add(points[0]); //complete the circuit
         }
 
         private List<PointF> convertToGUIPolygon(CPolygon c)
@@ -282,7 +283,7 @@ namespace FormsPolygonGenerator
             //decrement guard
             if(textBox1.Text == "0")
             {
-                textBox1.Text = (points.Count - 2).ToString();
+                textBox1.Text = (points.Count - 1).ToString();
             }
             else
             {

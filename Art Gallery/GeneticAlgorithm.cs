@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GeometryUtility;
 
 namespace FormsPolygonGenerator
 {
@@ -12,8 +13,9 @@ namespace FormsPolygonGenerator
         public List<List<Vertex>> population = new List<List<Vertex>>();
         Random r;
         int generationCount = 100;
+        private CPolygon map;
 
-        public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount)
+        public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount, CPolygon masterMap)
         {
             r = rand; //avoids having multiple instances of the Random class
             Organism temp;
@@ -23,6 +25,7 @@ namespace FormsPolygonGenerator
                 popOrg.Add(temp);
             }
             this.generationCount = tempGenCount;
+            this.map = masterMap;
         }
 
         private void mutate(Organism points)
@@ -41,6 +44,8 @@ namespace FormsPolygonGenerator
             } while (points.vertexList[rand2].hasGuard == true && rand1 != rand2);
 
             points.vertexList[rand2].hasGuard = true; //add a guard to the vertex
+
+            //no need to evaluate fitness; will only ever add a guard, then subtract a guard, giving the same fitness
         }
 
         private void crossover(Organism points1, Organism points2)
@@ -102,6 +107,7 @@ namespace FormsPolygonGenerator
             //iterate through generations
             for (int j = 0; j < generationCount; j++)
             {
+                randNumCrossovers = r.Next(popOrg.Count);
                 //perform crossovers
                 for (int i = 0; i < randNumCrossovers; i++)
                 {
@@ -121,8 +127,14 @@ namespace FormsPolygonGenerator
                     mutate(popOrg[randMutationIndex]);
                 }
 
+                //join polygons
+                foreach(Organism o in popOrg)
+                {
+                    o.getUnionedPolygon(map);
+                }
+
                 //sort by fitness
-                popOrg.OrderBy(x => x.fitness);
+                popOrg.OrderByDescending(x => x.polygonArea).ThenBy(x => x.fitness);
 
                 //remove least fit
                 popOrg.RemoveRange(origPopCount, popOrg.Count - origPopCount);

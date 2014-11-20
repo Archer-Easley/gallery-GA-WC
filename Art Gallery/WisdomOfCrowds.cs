@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GeometryUtility;
 
 namespace FormsPolygonGenerator
 {
     class WisdomOfCrowds
     {
-        public List<List<Vertex>> population;
-        public List<Agreement> agreementList;
-        public List<Vertex> guardVertex = new List<Vertex>();
-        public List<Vertex> coveredVertices = new List<Vertex>();
+        private List<List<Vertex>> population;
+        private List<Agreement> agreementList;
+        private List<Vertex> guardVertex = new List<Vertex>();
+        private CPolygon map;
         private int totalVerticesCount;
 
-        public WisdomOfCrowds(List<List<Vertex>> pop, int vertCount)
+        public WisdomOfCrowds(List<List<Vertex>> pop, int vertCount, CPolygon tempMap)
         {
             population = new List<List<Vertex>>(pop);
             totalVerticesCount = vertCount;
+            map = tempMap;
         }
 
         public void initializeAgreementList()
@@ -48,36 +50,39 @@ namespace FormsPolygonGenerator
         public void createWOCSolution()
         {
             //sort population by descending LOS count, frequency of vertex in the population
-            agreementList.OrderByDescending(x => x.vert.LOS.Count).ThenByDescending(x => x.freq);
+            agreementList.OrderByDescending(x => x.vert.polygonArea).ThenByDescending(x => x.freq);
 
-            //add first vertex
+            //add first vertex and create unionable polygon
             guardVertex.Add(agreementList[0].vert);
+            CPolygon unionSet = new CPolygon(agreementList[0].vert.LOS.m_aVertices.ToArray());
 
-            //add all vertices to a list of viewed vertices
-            foreach(Vertex v in guardVertex[0].LOS)
-            {
-                coveredVertices.Add(v);
-            }
+            CPolygon temp, biggest;
+            double biggestArea = double.MinValue;
+            double totalArea = map.PolygonArea();
+            double tempArea = double.MinValue;
+            int index = 0;
 
-            int maxAdded = 0;
-            List<Vertex> unionSet = new List<Vertex>();
-            //add successive vertices
-            while(coveredVertices.Count != totalVerticesCount)
+            //add guards until whole area is complete
+            while(Math.Abs(unionSet.PolygonArea() - totalArea) > ConstantValue.SmallValue) //allows no fp precision issues
             {
-                Vertex temp = new Vertex();
-                //find vertex that will add the most vertices to the coveredVertices list
+                biggestArea = double.MinValue;
+
+                //get point that will yield the most area if added
                 for(int i = 0; i < agreementList.Count; i++)
                 {
-                    unionSet = coveredVertices.Union(agreementList[i].vert.LOS).ToList();
-                    if(unionSet.Count > maxAdded)
+                    temp = map.JoinPolygons(agreementList[i].vert.LOS, unionSet);
+                    if((tempArea = temp.PolygonArea()) > biggestArea)
                     {
-                        maxAdded = unionSet.Count;
-                        temp = new Vertex(agreementList[i].vert);
+                        biggest = new CPolygon(temp.m_aVertices.ToArray());
+                        biggestArea = tempArea;
+                        index = i;
                     }
-                    unionSet.Clear();
                 }
-                coveredVertices = coveredVertices.Union(temp.LOS).ToList();
-                guardVertex.Add(temp);
+                //add that point's LOS to unionSet polygon
+                unionSet = map.JoinPolygons(unionSet, biggest);
+
+                //add point to the guard vertex list
+                guardVertex.Add(agreementList[index].vert);
             }
         }
     }
