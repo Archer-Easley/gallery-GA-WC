@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GeometryUtility
 {
@@ -7,7 +9,7 @@ namespace GeometryUtility
 	/// </summary>
 	
 	//A point in Coordinate System
-	public class CPoint2D
+	public class CPoint2D: IEquatable<CPoint2D>
 	{
 		private double m_dCoordinate_X;
 		private double m_dCoordinate_Y;
@@ -47,10 +49,48 @@ namespace GeometryUtility
 			}
 		}
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            CPoint2D p = obj as CPoint2D;
+            if (p.X < 0 || p.X == double.NaN || p.Y < 0 || p.Y == double.NaN) return false;
+            return EqualsPoint(p);
+        }
+
+        public bool Equals(CPoint2D p)
+        {
+            return EqualsPoint(p);
+        }
+
+        public static CPoint2D operator +(CPoint2D p1, CPoint2D p2)
+        {
+            return new CPoint2D(p1.X + p2.X, p1.Y + p2.Y);
+        }
+
+        public static CPoint2D operator -(CPoint2D p1, CPoint2D p2)
+        {
+            return new CPoint2D(p1.X - p2.X, p1.Y - p2.Y);
+        }
+
+        public static CPoint2D operator *(double a, CPoint2D p1)
+        {
+            p1.X = a * p1.X;
+            p1.Y = a * p1.Y;
+            return p1;
+        }
+
 		public static bool SamePoints(CPoint2D Point1,
 			CPoint2D Point2)
 		{
-		
+            if (Point1 == null || Point2 == null)
+            {
+                return false;
+            }
 			double dDeff_X=
 				Math.Abs(Point1.X-Point2.X);
 			double dDeff_Y=
@@ -119,8 +159,15 @@ namespace GeometryUtility
 
 		public bool PointInsidePolygon(CPoint2D[] polygonVertices)
 		{
-			if (polygonVertices.Length<3) //not a valid polygon
-				return false;
+            for (var i = 0; i < polygonVertices.Length; i++)
+            {
+                if (this.InLine(new CLineSegment(polygonVertices[i], polygonVertices[(i + 1) % polygonVertices.Length])))
+                {
+                    return true;
+                }
+            }
+            if (polygonVertices.Length < 3) //not a valid polygon
+                return false;
 			
 			int  nCounter= 0;
 			int nPoints = polygonVertices.Length;

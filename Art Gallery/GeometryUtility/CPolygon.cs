@@ -210,14 +210,14 @@ namespace GeometryUtility
 			{
 				CPoint2D pti=vertex;
 				CPoint2D ptj=PreviousPoint(vertex);
-				CPoint2D ptk=NextPoint(vertex);		
+				CPoint2D ptk=NextPoint(vertex);
 
-				double dArea=PolygonArea(new CPoint2D[] {ptj,pti, ptk});
-				
-				if (dArea<0)
-					vertexType= VertexType.ConvexPoint;
-				else if (dArea> 0)
-					vertexType= VertexType.ConcavePoint;
+                double dArea = PolygonArea(new CPoint2D[] { ptj, pti, ptk });
+
+                if (dArea > 0)
+                    vertexType = VertexType.ConvexPoint;
+                else if (dArea < 0)
+                    vertexType = VertexType.ConcavePoint;
 			}	
 			return vertexType;
 		}
@@ -234,38 +234,86 @@ namespace GeometryUtility
 		*********************************************/
 		public bool Diagonal(CPoint2D vertex1, CPoint2D vertex2)
 		{
-			bool bDiagonal=false;
+			bool bDiagonal=true;
 			int nNumOfVertices=m_aVertices.Length;
 			int j=0;
+            CLineSegment diagonal = new CLineSegment(vertex1, vertex2); 
 			for (int i= 0; i<nNumOfVertices; i++) //each point
 			{
-				bDiagonal=true;
+                
 				j= (i+1) % nNumOfVertices;  //next point of i
-        
-				//Diagonal line:
-				double x1=vertex1.X;
-				double y1=vertex1.Y;
-				double x2=vertex1.X;
-				double y2=vertex1.Y;
 
-				//CPolygon line:
-				double x3=m_aVertices[i].X;
-				double y3=m_aVertices[i].Y;
-				double x4=m_aVertices[j].X;
-				double y4=m_aVertices[j].Y;
+                CLineSegment polygonLine = new CLineSegment(m_aVertices[i], m_aVertices[j]);
 
-				double de=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);
-				double ub=-1;
-				
-				if (Math.Abs(de-0)>ConstantValue.SmallValue)  //lines are not parallel
-					ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/de;
+                if (polygonLine.IntersectedWith(diagonal) && !vertex2.InLine(polygonLine))
+                {
+                    bDiagonal = false;
+                    break;
+                }
 
-				if ((ub> 0) && (ub<1))
-				{
-					bDiagonal=false;
-				}
 			}
-			return bDiagonal;
+            // if not matches found, diagonal is either entirely inside, or outside polygon
+            if (bDiagonal)
+            {
+                //if (PolygonVertex(vertex2))
+                {
+                    CPoint2D midpoint = new CPoint2D((vertex1.X + vertex2.X) / 2, (vertex1.Y + vertex2.Y) / 2);
+                    if (!midpoint.PointInsidePolygon(m_aVertices))
+                    {
+                        bDiagonal = false;
+                    }
+                }
+                //else
+                //{
+                //    CLineSegment V1 = new CLineSegment(vertex1, PreviousPoint(vertex1));
+                //    CLineSegment V2 = new CLineSegment(vertex1, NextPoint(vertex1));
+                //    CLineSegment V3 = new CLineSegment(vertex1, vertex2);
+                //    double theta12 = Math.Atan2(CLineSegment.cross2D(V1, V2), CLineSegment.dot(V1, V2));
+                //    double theta13 = Math.Atan2(CLineSegment.cross2D(V1, V3), CLineSegment.dot(V1, V3));
+                //    double theta32 = Math.Atan2(CLineSegment.cross2D(V2, V3), CLineSegment.dot(V2, V3));
+                //    if (CLineSegment.dot(V1, V2) < 0)
+                //    {
+                //        if (theta12 > 0)
+                //        {
+                //            theta12 = Math.Abs(theta12) + Math.PI;
+                //        }
+                //        else
+                //        {
+                //            theta12 = Math.PI - theta12;
+                //        }
+                        
+                //    }
+                //    if (CLineSegment.dot(V1, V3) < 0)
+                //    {
+                //        if (theta13 > 0)
+                //        {
+                //            theta13 = Math.Abs(theta13) + Math.PI;
+                //        }
+                //        else
+                //        {
+                //            theta13 = Math.PI - theta13;
+                //        }
+                //    }
+                //    if (CLineSegment.dot(V2, V3) < 0)
+                //    {
+                //        if (theta32 > 0)
+                //        {
+                //            theta32 = Math.Abs(theta32) + Math.PI;
+                //        }
+                //        else
+                //        {
+                //            theta32 = Math.PI - theta32;
+                //        }
+
+                //    }
+                //    if ((theta12 - theta13 - theta32) > ConstantValue.SmallValue)
+                //    {
+                //        bDiagonal = false;
+                //    }
+                //}
+
+            }
+            return bDiagonal;
 		}
 
 		
@@ -460,11 +508,91 @@ namespace GeometryUtility
         public List<CPoint2D> VisibilitySet(CPoint2D p)
         {
             List<CPoint2D> temp = new List<CPoint2D>();
+            List<CPoint2D> intersections = new List<CPoint2D>();
+            if (PolygonVertex(p))
+            {
+                temp.Add(PreviousPoint(p));
+                temp.Add(p);
+                temp.Add(NextPoint(p));
+            }
+            else
+            {
+                for (var i = 0; i < m_aVertices.Length; i++)
+                {
+                    if ((p.InLine(new CLineSegment(this[i], NextPoint(this[i])))))
+                    {
+                        temp.Add(this[i]);
+                        temp.Add(p);
+                        temp.Add(NextPoint(this[i]));
+                    }
+                }
+            }
             for (var i = 0; i < m_aVertices.Length; i++)
             {
-                if (Diagonal(p, this[i]))
+                if (i != VertexIndex(p)) 
+                { 
+                    if (Diagonal(p, this[i]))
+                    {
+                        if (!temp.Contains(this[i]))
+                        {
+                            if (temp.FindIndex(x=> VertexIndex(x) > VertexIndex(this[i])) == -1)
+                            {
+                                temp.Add(this[i]);
+                            }
+                            else
+                            {
+                                temp.Insert(temp.IndexOf(temp.First(x => VertexIndex(x) > VertexIndex(this[i]))), this[i]);
+                            }
+
+                        }
+                        if (PolygonVertexType(this[i]).Equals(VertexType.ConcavePoint))
+                        {
+                            CLine line = new CLine(p, this[i]);
+                            CLineSegment lineSegment = new CLineSegment(p,this[i]);
+                            for (int j = 0; j < m_aVertices.Length; j++)
+                            {
+                                if (j != i || j != VertexIndex(p))
+                                {
+                                
+                                    CLineSegment edge = new CLineSegment(this[j], NextPoint(this[j]));
+                                    CPoint2D intersection = edge.IntersecctionWith(line);
+                                    CLineSegment PToIntersection = new CLineSegment(p, intersection);
+                                    if (intersection.InLine(edge) && intersection.X > 0 && intersection.Y > 0 && !temp.Contains(intersection) && Diagonal(this[i],intersection) && lineSegment.InLine(PToIntersection))
+                                    {
+                                        intersections.Add(intersection);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (var i = 0; i < m_aVertices.Length; i++)
+            {
+                for (var j = 0; j < intersections.Count; j++)
                 {
-                    temp.Add(this[i]);
+                    if (intersections[j].InLine(new CLineSegment(this[i], NextPoint(this[i]))))
+                    {
+                        if (VertexIndex(NextPoint(this[i])) == 0)
+                        {
+                            temp.Add(intersections[j]);
+                        }
+                        else 
+                        {
+                            try
+                            {
+                                temp.Insert(temp.IndexOf(temp.First(x => VertexIndex(x) > VertexIndex(this[i]))), intersections[j]);
+                            }
+                            catch
+                            {
+                                temp.Add(intersections[j]);
+                            }
+                        }
+                        
+                        intersections.RemoveAt(j);
+                        j--;
+                    }
                 }
             }
             return temp;
@@ -472,10 +600,10 @@ namespace GeometryUtility
 
         public static bool IntersectedWith(CPolygon P1, CPolygon P2, bool includeVertices = false)
         {
+            List<CPoint2D> list_P1 = new List<CPoint2D>(P1.m_aVertices);
+            List<CPoint2D> list_P2 = new List<CPoint2D>(P2.m_aVertices);
             if (includeVertices)
             {
-                List<CPoint2D> list_P1 = new List<CPoint2D>(P1.m_aVertices);
-                List<CPoint2D> list_P2 = new List<CPoint2D>(P2.m_aVertices);
                 if (list_P1.Union(list_P2).Count() > 0)
                 {
                     return true;
@@ -493,6 +621,10 @@ namespace GeometryUtility
                         }
                     }
                 }
+            }
+            if (list_P1.Union(list_P2).Count() == list_P1.Count() && list_P1.Count == list_P2.Count)
+            {
+                return true;
             }
             return false;
         }

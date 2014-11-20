@@ -26,7 +26,7 @@ namespace FormsPolygonGenerator
         public void Solve(List<Point> GUI, int generationCount)
         {
             convertGUIPointsToInternalPoints(GUI);
-            generateLineOfSightForReflexVertices();
+            //generateLineOfSightForReflexVertices();
             minimalGuardSet();
             //performGA(generationCount);
             //performWOC();
@@ -34,8 +34,8 @@ namespace FormsPolygonGenerator
 
         private void convertGUIPointsToInternalPoints(List<Point> GUI)
         {
-            var temp = new CPoint2D[GUI.Count];
-            for (var i = 0; i < GUI.Count; i++)
+            var temp = new CPoint2D[GUI.Count - 1];
+            for (var i = 0; i < GUI.Count -1; i++)
             {
                 temp[i] = new CPoint2D(GUI[i].X, GUI[i].Y);
             }
@@ -160,6 +160,8 @@ namespace FormsPolygonGenerator
                     case VertexType.ConvexPoint:
                         C.Add(polygon[i]);
                         break;
+                    case VertexType.ErrorPoint:
+                        break;
                 }
             }
 
@@ -167,6 +169,7 @@ namespace FormsPolygonGenerator
             {
                 var smallestArea = double.MaxValue;
                 var smallest = new CPoint2D();
+                var smallestPolygon = new CPolygon();
                 for (var i = 0; i < C.Count; i++)
                 {
                     var temp = new CPolygon(polygon.VisibilitySet(C[i]).ToArray());
@@ -175,6 +178,7 @@ namespace FormsPolygonGenerator
                     {
                         smallest = C[i];
                         smallestArea = tempArea;
+                        smallestPolygon = temp;
                     }
                 }
                 minimumGuardSet.Add(smallest);
@@ -185,6 +189,7 @@ namespace FormsPolygonGenerator
                     if (CPolygon.IntersectedWith(new CPolygon(polygon.VisibilitySet(smallest).ToArray()), temp, false))
                     {
                         C.Remove(C[i]);
+                        i--;
                     }
                 }
             }

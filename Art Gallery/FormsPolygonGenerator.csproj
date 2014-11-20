@@ -58,6 +58,7 @@
     <Compile Include="GeometryUtility\CPolygon.cs" />
     <Compile Include="GeometryUtility\Definition.cs" />
     <Compile Include="LineComparitor.cs" />
+    <Compile Include="Organism.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Map.cs" />

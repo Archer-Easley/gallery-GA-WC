@@ -168,7 +168,12 @@ namespace GeometryUtility
 			}
 			return y;
 		}
-		
+
+        public double GetSlope()
+        {
+            return -b / a;
+        }
+
 		/*** is it a vertical line:***/
 		public bool VerticalLine()
 		{
@@ -240,6 +245,27 @@ namespace GeometryUtility
 		//direction from start point ->end point
 		private CPoint2D m_startPoint;
 		private CPoint2D m_endPoint;
+
+        public static double operator *(CLineSegment L1, CLineSegment L2)
+        {
+            return (L1.a * L2.b - L1.b * L2.a);
+        }
+
+        public static CLineSegment operator +(CLineSegment L1, CLineSegment L2)
+        {
+            return new CLineSegment(new CPoint2D(0,0), L1.EndPoint + L2.EndPoint);
+        }
+
+        public static CLineSegment operator -(CLineSegment L1, CLineSegment L2)
+        {
+            return new CLineSegment(new CPoint2D(0,0), L1.StartPoint - L2.EndPoint);
+        }
+
+        public static CLineSegment operator *(double a, CLineSegment L)
+        {
+            L.m_endPoint = a * L.EndPoint;
+            return L;
+        }
 
 		public CPoint2D StartPoint
 		{
@@ -470,20 +496,22 @@ namespace GeometryUtility
 			double x4=line.m_endPoint.X;
 			double y4=line.m_endPoint.Y;
 
-			double de=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);
-			//if de<>0 then //lines are not parallel
-			if (Math.Abs(de-0)<ConstantValue.SmallValue) //not parallel
-			{
-				double ua=((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))/de;
-				double ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/de;
 
-				if ((ub> 0) && (ub<1))
-					return true;
-						else
-					return false;
-			}
-			else	//lines are parallel
-				return false;
+
+            double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+            //if de<>0 then //lines are not parallel
+            if (Math.Abs(de - 0) > ConstantValue.SmallValue) //not parallel
+            {
+                double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / de;
+                double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / de;
+
+                if ((ub > 0) && (ub < 1) && (ua > 0) && (ua < 1))
+                    return true;
+                else
+                    return false;
+            }
+            else	//lines are parallel
+                return false;
 		}
 
         /********************************************************
@@ -504,7 +532,7 @@ namespace GeometryUtility
 
                 double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
                 //if de<>0 then //lines are not parallel
-                if (Math.Abs(de - 0) < ConstantValue.SmallValue) //not parallel
+                if (Math.Abs(de - 0) > ConstantValue.SmallValue) //not parallel
                 {
                     double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / de;
                     double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / de;
@@ -533,7 +561,7 @@ namespace GeometryUtility
 
             double de = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
             //if de<>0 then //lines are not parallel
-            if (Math.Abs(de - 0) < ConstantValue.SmallValue) //not parallel
+            if (Math.Abs(de - 0) > ConstantValue.SmallValue) //not parallel
             {
                 double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / de;
                 double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / de;
@@ -545,6 +573,16 @@ namespace GeometryUtility
             }
             else	//lines are parallel
                 return false;
+        }
+
+        public static double dot(CLineSegment line1, CLineSegment line2)
+        {
+            return (line1.a * line2.a + line2.b * line2.b);
+        }
+
+        public static double cross2D(CLineSegment line1, CLineSegment line2)
+        {
+            return (line1.a * line2.b - line1.b * line2.a);
         }
 	}
 }
