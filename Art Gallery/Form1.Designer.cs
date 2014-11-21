@@ -33,6 +33,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btn_previousGuard = new System.Windows.Forms.Button();
             this.btn_NextGuard = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -40,7 +41,8 @@
             this.tb_generationCount = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.btn_previousGuard = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.tb_populationCount = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
@@ -56,7 +58,7 @@
             // btn_draw
             // 
             this.btn_draw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_draw.Location = new System.Drawing.Point(4, 112);
+            this.btn_draw.Location = new System.Drawing.Point(4, 153);
             this.btn_draw.Name = "btn_draw";
             this.btn_draw.Size = new System.Drawing.Size(75, 23);
             this.btn_draw.TabIndex = 2;
@@ -84,6 +86,8 @@
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.tb_populationCount);
+            this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.btn_previousGuard);
             this.groupBox1.Controls.Add(this.btn_NextGuard);
             this.groupBox1.Controls.Add(this.textBox1);
@@ -94,15 +98,25 @@
             this.groupBox1.Controls.Add(this.tb_numPoints);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.btn_draw);
-            this.groupBox1.Location = new System.Drawing.Point(1120, 12);
+            this.groupBox1.Location = new System.Drawing.Point(1167, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 288);
+            this.groupBox1.Size = new System.Drawing.Size(91, 347);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             // 
+            // btn_previousGuard
+            // 
+            this.btn_previousGuard.Location = new System.Drawing.Point(7, 281);
+            this.btn_previousGuard.Name = "btn_previousGuard";
+            this.btn_previousGuard.Size = new System.Drawing.Size(75, 23);
+            this.btn_previousGuard.TabIndex = 11;
+            this.btn_previousGuard.Text = "Last Guard";
+            this.btn_previousGuard.UseVisualStyleBackColor = true;
+            this.btn_previousGuard.Click += new System.EventHandler(this.btn_previousGuard_Click);
+            // 
             // btn_NextGuard
             // 
-            this.btn_NextGuard.Location = new System.Drawing.Point(7, 223);
+            this.btn_NextGuard.Location = new System.Drawing.Point(7, 251);
             this.btn_NextGuard.Name = "btn_NextGuard";
             this.btn_NextGuard.Size = new System.Drawing.Size(75, 23);
             this.btn_NextGuard.TabIndex = 10;
@@ -112,7 +126,7 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(7, 167);
+            this.textBox1.Location = new System.Drawing.Point(7, 195);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(72, 20);
             this.textBox1.TabIndex = 9;
@@ -120,7 +134,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 150);
+            this.label3.Location = new System.Drawing.Point(6, 178);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(36, 13);
             this.label3.TabIndex = 8;
@@ -128,7 +142,7 @@
             // 
             // btn_showArea
             // 
-            this.btn_showArea.Location = new System.Drawing.Point(6, 193);
+            this.btn_showArea.Location = new System.Drawing.Point(6, 221);
             this.btn_showArea.Name = "btn_showArea";
             this.btn_showArea.Size = new System.Drawing.Size(75, 23);
             this.btn_showArea.TabIndex = 7;
@@ -154,28 +168,34 @@
             // 
             // dataGridView1
             // 
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(999, 306);
+            this.dataGridView1.Location = new System.Drawing.Point(1048, 306);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(200, 289);
             this.dataGridView1.TabIndex = 6;
             // 
-            // btn_previousGuard
+            // label4
             // 
-            this.btn_previousGuard.Location = new System.Drawing.Point(7, 253);
-            this.btn_previousGuard.Name = "btn_previousGuard";
-            this.btn_previousGuard.Size = new System.Drawing.Size(75, 23);
-            this.btn_previousGuard.TabIndex = 11;
-            this.btn_previousGuard.Text = "Last Guard";
-            this.btn_previousGuard.UseVisualStyleBackColor = true;
-            this.btn_previousGuard.Click += new System.EventHandler(this.btn_previousGuard_Click);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(4, 113);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(88, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "Population Count";
+            // 
+            // tb_populationCount
+            // 
+            this.tb_populationCount.Location = new System.Drawing.Point(4, 130);
+            this.tb_populationCount.Name = "tb_populationCount";
+            this.tb_populationCount.Size = new System.Drawing.Size(100, 20);
+            this.tb_populationCount.TabIndex = 13;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1211, 617);
+            this.ClientSize = new System.Drawing.Size(1260, 617);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.panel1);
@@ -203,6 +223,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_NextGuard;
         private System.Windows.Forms.Button btn_previousGuard;
+        private System.Windows.Forms.TextBox tb_populationCount;
+        private System.Windows.Forms.Label label4;
     }
 }
 

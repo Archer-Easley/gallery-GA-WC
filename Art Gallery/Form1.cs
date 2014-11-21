@@ -26,6 +26,7 @@ namespace FormsPolygonGenerator
             tb_numPoints.Text = "27";
             panel1.BackColor = Color.White;
             tb_generationCount.Text = "100";
+            tb_populationCount.Text = "100";
             textBox1.Text = "0";
             this.Name = "Art Gallery";
             this.Text = "Art Gallery";
@@ -38,7 +39,7 @@ namespace FormsPolygonGenerator
             createPolygon();
             //ExportPointListCSV();
             populateDataGridView();
-            //map.Solve(points, int.Parse(tb_generationCount.Text));
+            map.Solve(points, int.Parse(tb_generationCount.Text), int.Parse(tb_populationCount.Text));
             panel1.Invalidate();
 
         }

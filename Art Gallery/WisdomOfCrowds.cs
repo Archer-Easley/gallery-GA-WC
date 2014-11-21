@@ -9,7 +9,7 @@ namespace FormsPolygonGenerator
 {
     class WisdomOfCrowds
     {
-        private List<List<Vertex>> population;
+        public List<List<Vertex>> population;
         private List<Agreement> agreementList;
         private List<Vertex> guardVertex = new List<Vertex>();
         private CPolygon map;
@@ -56,21 +56,22 @@ namespace FormsPolygonGenerator
             guardVertex.Add(agreementList[0].vert);
             CPolygon unionSet = new CPolygon(agreementList[0].vert.LOS.m_aVertices.ToArray());
 
-            CPolygon temp, biggest;
+            CPolygon temp, biggest = new CPolygon();
             double biggestArea = double.MinValue;
             double totalArea = map.PolygonArea();
             double tempArea = double.MinValue;
+            double blahArea = 0;
             int index = 0;
 
             //add guards until whole area is complete
-            while(Math.Abs(unionSet.PolygonArea() - totalArea) > ConstantValue.SmallValue) //allows no fp precision issues
+            while((blahArea = Math.Abs(unionSet.PolygonArea() - totalArea)) > ConstantValue.SmallValue) //allows no fp precision issues
             {
                 biggestArea = double.MinValue;
 
                 //get point that will yield the most area if added
                 for(int i = 0; i < agreementList.Count; i++)
                 {
-                    temp = map.JoinPolygons(agreementList[i].vert.LOS, unionSet);
+                    temp = new CPolygon(map.JoinPolygon(agreementList[i].vert.LOS, unionSet).ToArray());
                     if((tempArea = temp.PolygonArea()) > biggestArea)
                     {
                         biggest = new CPolygon(temp.m_aVertices.ToArray());
@@ -79,7 +80,7 @@ namespace FormsPolygonGenerator
                     }
                 }
                 //add that point's LOS to unionSet polygon
-                unionSet = map.JoinPolygons(unionSet, biggest);
+                unionSet = new CPolygon(map.JoinPolygon(unionSet, biggest).ToArray());
 
                 //add point to the guard vertex list
                 guardVertex.Add(agreementList[index].vert);

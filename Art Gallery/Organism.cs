@@ -43,7 +43,7 @@ namespace FormsPolygonGenerator
         public void getUnionedPolygon(CPolygon map)
         {
             bool firstGuard = true;
-            CPolygon temp;
+            CPolygon temp = new CPolygon();
             foreach(Vertex v in vertexList)
             {
                 if(v.hasGuard && firstGuard)
@@ -52,7 +52,7 @@ namespace FormsPolygonGenerator
                 }
                 else if(v.hasGuard)
                 {
-                    temp = new CPolygon(map.JoinPolygons(temp, v.LOS).toArray());
+                    temp = new CPolygon(map.JoinPolygon(temp, v.LOS).ToArray());
                 }
             }
             unionedPolygon = temp;

@@ -23,13 +23,13 @@ namespace FormsPolygonGenerator
             vertices = new List<Vertex>();
         }
 
-        public void Solve(List<Point> GUI, int generationCount)
+        public void Solve(List<Point> GUI, int generationCount, int populationCount)
         {
             convertGUIPointsToInternalPoints(GUI);
-            //generateLineOfSightForReflexVertices();
             minimalGuardSet();
-            //performGA(generationCount);
-            //performWOC();
+            createPopulation(populationCount);
+            performGA(generationCount);
+            performWOC();
         }
 
         private void convertGUIPointsToInternalPoints(List<Point> GUI)
@@ -50,6 +50,63 @@ namespace FormsPolygonGenerator
             //    vertices.Add(temp);
             //}
             //vertices.ToString();
+        }
+
+        private void createPopulation(int populationCount)
+        {
+            //populate first member of the population 
+            population = new List<List<Vertex>>();
+            List<Vertex> tempList;
+            Vertex temp;
+            for (int i = 0; i < populationCount; i++)
+            {
+                tempList = new List<Vertex>();
+                foreach (CPoint2D p in polygon.m_aVertices)
+                {
+                    if (polygon.PolygonVertexType(p).Equals(VertexType.ConcavePoint))
+                    {
+                        temp = new Vertex();
+                        temp.x = (float)p.X;
+                        temp.y = (float)p.Y;
+                        tempList.Add(temp);
+                    }
+                }
+                population.Add(tempList);
+            }
+
+            int lowerBound = minimumGuardSet.Count;
+            int upperBound = population[0].Count;
+
+            int randGuardCount = r.Next(lowerBound, upperBound);
+            int randIndex = 0;
+
+            foreach(List<Vertex> lv in population)
+            {
+                for(int i = 0; i < randGuardCount; i++)
+                {
+                    do
+                    {
+                        randIndex = r.Next(lv.Count);
+                    } while (lv[randIndex].hasGuard); //loop until unguarded vertex is found
+
+                    lv[randIndex].hasGuard = true;
+                }
+
+                randGuardCount = r.Next(lowerBound, upperBound);
+            }
+
+            foreach(Vertex v in population[0])
+            {
+                v.getLOS(polygon);
+            }
+
+            for (int i = 1; i < population.Count; i++)
+            {
+                for(int j = 0; j < population[0].Count; j++)
+                {
+                    population[i][j].LOS = population[0][j].LOS;
+                }
+            }
         }
 
         //private void generateLineOfSightForReflexVertices()
@@ -210,6 +267,8 @@ namespace FormsPolygonGenerator
             woc.initializeAgreementList();
             woc.populateAgreementList();
             woc.createWOCSolution();
+            this.population = woc.population;
+            r.Next();
         }
     }
 }

@@ -56,6 +56,8 @@ namespace FormsPolygonGenerator
             y = v.y;
             ID = v.ID;
             hasGuard = v.hasGuard;
+            LOS = v.LOS;
+            polygonArea = v.polygonArea;
         }
 
         public void getLOS(CPolygon map)
