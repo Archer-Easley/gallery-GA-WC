@@ -9,9 +9,9 @@ namespace FormsPolygonGenerator
 {
     class WisdomOfCrowds
     {
-        public List<List<Vertex>> population;
+        private List<List<Vertex>> population;
         private List<Agreement> agreementList;
-        private List<Vertex> guardVertex = new List<Vertex>();
+        public List<Vertex> guardVertex = new List<Vertex>();
         private CPolygon map;
         private int totalVerticesCount;
 
@@ -64,7 +64,7 @@ namespace FormsPolygonGenerator
             int index = 0;
 
             //add guards until whole area is complete
-            while((blahArea = Math.Abs(unionSet.PolygonArea() - totalArea)) > ConstantValue.SmallValue) //allows no fp precision issues
+            while(Math.Round(unionSet.PolygonArea()) != Math.Round(totalArea)) //allows no fp precision issues
             {
                 biggestArea = double.MinValue;
 

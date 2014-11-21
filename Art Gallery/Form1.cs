@@ -17,6 +17,7 @@ namespace FormsPolygonGenerator
         List<Point> points = new List<Point>();
         List<CPolygon> GuardAreas = new List<CPolygon>();
         Random r = new Random();
+        Map map = new Map();
         bool init = false;
 
         public Form1()
@@ -25,21 +26,22 @@ namespace FormsPolygonGenerator
             this.WindowState = FormWindowState.Maximized;
             tb_numPoints.Text = "27";
             panel1.BackColor = Color.White;
-            tb_generationCount.Text = "100";
+            tb_generationCount.Text = "20";
             tb_populationCount.Text = "100";
             textBox1.Text = "0";
             this.Name = "Art Gallery";
             this.Text = "Art Gallery";
+            rb_GA.Checked = true;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             init = true;
-            Map map = new Map();
             createPolygon();
             //ExportPointListCSV();
             populateDataGridView();
             map.Solve(points, int.Parse(tb_generationCount.Text), int.Parse(tb_populationCount.Text));
+            updateLabels();
             panel1.Invalidate();
 
         }
@@ -53,16 +55,75 @@ namespace FormsPolygonGenerator
             KnownColor[] knownNames = (KnownColor[])Enum.GetValues(typeof(KnownColor));
             List<Color> names = new List<Color>();
             Color tempColor;
-            for (int i = 0; i < GuardAreas.Count; i++)
+            int index;
+            if (init)
             {
-                tempColor = new Color();
-                tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
-                names.Add(tempColor);
+                for (int i = 0; i < Math.Max(map.GASolution.Count, map.WoCSolution.Count); i++)
+                {
+                    tempColor = new Color();
+                    tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
+                    names.Add(tempColor);
+                    index = i;
+                }
+
+                if(names.Contains(Color.Black)) //ensure no area gets painted black; used for default vertex color
+                {
+                    names.Remove(Color.Black);
+                    do
+                    {
+                        tempColor = new Color();
+                        tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
+                    } while (tempColor == Color.Black);
+                    names.Add(tempColor);
+                }
             }
 
             List<PointF> temp;
+            if (init && GuardAreas.Count == 0)
+            {
+                //draw the guard Areas
+                if (rb_GA.Checked) //draw GA solution
+                {
+                    for (int i = 0; i < map.GASolution.Count; i++)
+                    {
+                        temp = new List<PointF>(convertToGUIPolygon(map.GASolution[i].LOS));
+                        b = new SolidBrush(names[i]);
+                        g.FillPolygon(b, temp.ToArray()); //draws guard areas
 
-            //draw the guard Areas
+                        foreach(Vertex v in map.GASolution) //fill in guard vertex with same color, black if no guard area
+                        {
+                            if(v.hasGuard)
+                            {
+                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
+                            }
+                            else
+                            {
+                                b = new SolidBrush(Color.Black);
+                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
+                            }
+                        }
+                    }
+                }
+                else //draw WoC solution
+                {
+                    for (int i = 0; i < map.WoCSolution.Count; i++)
+                    {
+                        temp = new List<PointF>(convertToGUIPolygon(map.WoCSolution[i].LOS));
+                        b = new SolidBrush(names[i]);
+                        g.FillPolygon(b, temp.ToArray());
+
+                        foreach(Vertex v in map.WoCSolution)
+                        {
+                            if(v.hasGuard)
+                            {
+                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //leave for individual guard area drawing
             for (int i = 0; i < GuardAreas.Count; i++)
             {
                 temp = new List<PointF>(convertToGUIPolygon(GuardAreas[i]));
@@ -80,6 +141,7 @@ namespace FormsPolygonGenerator
             if(init)
                 g.DrawLine(Pens.Black, points[points.Count - 1], points[0]);
 
+            //draw vertices
             for (int i = 0; i < points.Count; i++)
             {
                 g.DrawEllipse(Pens.Black, points[i].X - 5, points[i].Y - 5, 10, 10);
@@ -87,11 +149,37 @@ namespace FormsPolygonGenerator
                 g.FillEllipse(br, points[i].X - 5, points[i].Y - 5, 10, 10);
             }
 
-            //Fill vertex in with red if it's a guard
-            if (init)
+            ////Fill vertex in with red if it's a guard
+            //if (init)
+            //{
+            //    SolidBrush br = new SolidBrush(Color.Red);
+            //    g.FillEllipse(br, points[int.Parse(textBox1.Text)].X - 5, points[int.Parse(textBox1.Text)].Y - 5, 10, 10);
+            //}
+
+            if(init)
             {
-                SolidBrush br = new SolidBrush(Color.Red);
-                g.FillEllipse(br, points[int.Parse(textBox1.Text)].X - 5, points[int.Parse(textBox1.Text)].Y - 5, 10, 10);
+                if(rb_GA.Checked)
+                {
+                    foreach(Vertex v in map.GASolution)
+                    {
+                        if(v.hasGuard)
+                        {
+                            SolidBrush br = new SolidBrush(Color.Red);
+                            g.FillEllipse(br, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Vertex v in map.WoCSolution)
+                    {
+                        if (v.hasGuard)
+                        {
+                            SolidBrush br = new SolidBrush(Color.Red);
+                            g.FillEllipse(br, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                    }
+                }
             }
         }
 
@@ -193,6 +281,28 @@ namespace FormsPolygonGenerator
                 tempList.Add(temp);
             }
             return tempList.ToArray();
+        }
+
+        private void updateLabels()
+        {
+            int guardCount = 0;
+            if(rb_GA.Checked && init)
+            {
+                foreach (Vertex v in map.GASolution)
+                {
+                    if (v.hasGuard)
+                        guardCount++;
+                }
+            }
+            else if (init)
+            {
+                guardCount = map.WoCSolution.Count;
+            }
+            lbl_guardCount.Text =  "Guard Count: " + guardCount.ToString();
+
+            lbl_gatime.Text = "GA time: " + map.GAtime;
+            lbl_woctime.Text = "WOC time: " + map.WOCtime;
+            lbl_GAavg.Text = "GA Average: " + map.GAavgFitness;
         }
 
         #endregion
@@ -300,6 +410,24 @@ namespace FormsPolygonGenerator
             CPolygon guardArea = new CPolygon(tempList.ToArray());
 
             GuardAreas.Add(guardArea);
+            panel1.Invalidate();
+        }
+
+        private void rb_GA_CheckedChanged(object sender, EventArgs e)
+        {
+            updateLabels();
+            panel1.Invalidate();
+        }
+
+        private void rb_WOC_CheckedChanged(object sender, EventArgs e)
+        {
+            updateLabels();
+            panel1.Invalidate();
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            GuardAreas.Clear();
             panel1.Invalidate();
         }
 

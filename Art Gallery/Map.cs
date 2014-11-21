@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Diagnostics;
 using GeometryUtility;
 
 namespace FormsPolygonGenerator
@@ -16,6 +17,11 @@ namespace FormsPolygonGenerator
         List<Vertex> reflexVertices = new List<Vertex>();
         //List<Vertex> minimumGaurdSet;
         List<CPoint2D> minimumGuardSet = new List<CPoint2D>();
+        public List<Vertex> WoCSolution;
+        public List<Vertex> GASolution;
+        public string GAtime;
+        public string WOCtime;
+        public string GAavgFitness;
         CPolygon polygon;
 
         public Map()
@@ -25,6 +31,7 @@ namespace FormsPolygonGenerator
 
         public void Solve(List<Point> GUI, int generationCount, int populationCount)
         {
+            
             convertGUIPointsToInternalPoints(GUI);
             minimalGuardSet();
             createPopulation(populationCount);
@@ -61,13 +68,14 @@ namespace FormsPolygonGenerator
             for (int i = 0; i < populationCount; i++)
             {
                 tempList = new List<Vertex>();
-                foreach (CPoint2D p in polygon.m_aVertices)
+                for (int j = 0; j < polygon.m_aVertices.Length; j++)//(CPoint2D p in polygon.m_aVertices)
                 {
-                    if (polygon.PolygonVertexType(p).Equals(VertexType.ConcavePoint))
+                    if (polygon.PolygonVertexType(polygon.m_aVertices[j]).Equals(VertexType.ConcavePoint))
                     {
                         temp = new Vertex();
-                        temp.x = (float)p.X;
-                        temp.y = (float)p.Y;
+                        temp.x = (float)polygon.m_aVertices[j].X;
+                        temp.y = (float)polygon.m_aVertices[j].Y;
+                        temp.ID = j;
                         tempList.Add(temp);
                     }
                 }
@@ -258,17 +266,23 @@ namespace FormsPolygonGenerator
         {
             GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount, polygon);
             ga.performGA();
-            this.population = new List<List<Vertex>>(ga.population);
+            this.GASolution = new List<Vertex>(ga.population[0]);
+            GAtime = ga.timeElapsed;
+            GAavgFitness = ga.averageFitness.ToString("#.###");
         }
 
         private void performWOC()
         {
             WisdomOfCrowds woc = new WisdomOfCrowds(population, vertices.Count, polygon);
+            Stopwatch t = new Stopwatch();
+            t.Reset();
+            t.Start();
             woc.initializeAgreementList();
             woc.populateAgreementList();
             woc.createWOCSolution();
-            this.population = woc.population;
-            r.Next();
+            t.Stop();
+            this.WoCSolution = new List<Vertex>(woc.guardVertex);
+            WOCtime = t.Elapsed.ToString();
         }
     }
 }
