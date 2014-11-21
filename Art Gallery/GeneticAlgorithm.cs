@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using GeometryUtility;
 
 namespace FormsPolygonGenerator
@@ -14,6 +15,9 @@ namespace FormsPolygonGenerator
         Random r;
         int generationCount = 100;
         private CPolygon map;
+        private double mapSize;
+        public string timeElapsed;
+        public double averageFitness;
 
         public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount, CPolygon masterMap)
         {
@@ -102,8 +106,12 @@ namespace FormsPolygonGenerator
             foreach(Organism o in popOrg)
             {
                 o.determineFitness();
+                o.getUnionedPolygon(map);
             }
 
+            Stopwatch t = new Stopwatch();
+            t.Reset();
+            t.Start();
             //iterate through generations
             for (int j = 0; j < generationCount; j++)
             {
@@ -140,11 +148,27 @@ namespace FormsPolygonGenerator
                 popOrg.RemoveRange(origPopCount, popOrg.Count - origPopCount);
             }
 
-            //populate population in form of List<List<Vertex>> to pass to presenter
+            //remove invalid answers, then sort by just fitness
+            mapSize = Math.Round(map.PolygonArea());
+            for(int i = 0; i < popOrg.Count; i++)
+            {
+                if(mapSize == Math.Round(popOrg[i].polygonArea))
+                {
+                    popOrg.RemoveAt(i);
+                }
+            }
+            popOrg.OrderBy(x => x.fitness);
+
+            t.Stop();
+            timeElapsed = t.Elapsed.ToString();
+
+            //populate population in form of List<List<Vertex>> to pass to presenter, and calculate average fitness
             foreach(Organism o in popOrg)
             {
                 population.Add(o.vertexList);
+                averageFitness += o.fitness;
             }
+            averageFitness = averageFitness / popOrg.Count;
         }
     }
 }
