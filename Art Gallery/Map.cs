@@ -31,32 +31,54 @@ namespace FormsPolygonGenerator
 
         public void Solve(List<Point> GUI, int generationCount, int populationCount)
         {
-            
             convertGUIPointsToInternalPoints(GUI);
-            minimalGuardSet();
-            createPopulation(populationCount);
-            performGA(generationCount);
-            performWOC();
+            //minimalGuardSet();
+            //createPopulation(populationCount);
+            if(countReflexVertices())
+            {
+                performGA(generationCount, populationCount);
+                performWOC();
+            }
+        }
+
+        private bool countReflexVertices()
+        {
+            List<Vertex> reflexVertices = new List<Vertex>(); 
+
+            foreach(CPoint2D p in polygon.m_aVertices)
+            {
+                if (polygon.PolygonVertexType(p).Equals(VertexType.ConcavePoint))
+                    reflexVertices.Add(new Vertex((float)p.X, (float)p.Y));
+            }
+
+            if(reflexVertices.Count == 0) //shape is completely convex
+            {
+                WoCSolution = new List<Vertex>();
+                GASolution = new List<Vertex>();
+                WoCSolution.Add(new Vertex((float)polygon[0].X, (float)polygon[0].Y));
+                GASolution.Add(new Vertex((float)polygon[0].X, (float)polygon[0].Y));
+                return false;
+            }
+            else if(reflexVertices.Count == 1)
+            {
+                WoCSolution = new List<Vertex>(reflexVertices);
+                GASolution = new List<Vertex>(reflexVertices);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private void convertGUIPointsToInternalPoints(List<Point> GUI)
         {
-            var temp = new CPoint2D[GUI.Count - 1];
-            for (var i = 0; i < GUI.Count -1; i++)
+            var temp = new CPoint2D[GUI.Count];
+            for (var i = 0; i < GUI.Count; i++)
             {
                 temp[i] = new CPoint2D(GUI[i].X, GUI[i].Y);
             }
             polygon = new CPolygon(temp);
-            //Vertex temp;
-            //for (int i = 0; i < GUI.Count; i++)
-            //{
-            //    temp = new Vertex();
-            //    temp.x = GUI[i].X;
-            //    temp.y = GUI[i].Y;
-            //    temp.ID = i;
-            //    vertices.Add(temp);
-            //}
-            //vertices.ToString();
         }
 
         private void createPopulation(int populationCount)
@@ -117,98 +139,6 @@ namespace FormsPolygonGenerator
             }
         }
 
-        //private void generateLineOfSightForReflexVertices()
-        //{
-        //    for (var i = 0; i < polygon.numberOfVertices; i++)
-        //    {
-        //        if (polygon.PolygonVertexType(polygon[i]).Equals(VertexType.ConcavePoint))
-        //        {
-        //            reflexVertices.Add(new Vertex((float) polygon[i].X, (float)polygon[i].Y));
-        //            var temp = polygon.VisibilitySet(polygon[i]);
-        //            for (var j = 0; j < temp.Count - 1; j++)
-        //            {
-        //                reflexVertices[reflexVertices.Count-1].LOS.Add(new Vertex((float)temp[j].X, (float)temp[j].Y));
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private void identifyReflexVertices()
-        //{
-        //    LineComparitor comp = new LineComparitor();
-        //    for (var i = 0; i < vertices.Count; i++)
-        //    {
-        //        float theta = 0;
-        //        for (var j = 0; j < vertices[i].LOS.Count; j++)
-        //        {
-        //            theta += comp.angleBetween(vertices[i].x, vertices[i].y, vertices[i].LOS[j].x, vertices[i].LOS[j].y, vertices[i].LOS[(j + 1) * vertices[i].LOS.Count].x, vertices[i].LOS[(j + 1) * vertices[i].LOS.Count].y);
-        //        }
-        //        if (theta >= Math.PI)
-        //        {
-        //            reflexVertices.Add(vertices[i]);
-        //        }
-        //    }
-        //}
-
-        //private void populateLOSforReflexVertices()
-        //{
-        //    LineComparitor comp = new LineComparitor();
-        //    for (var i = 0; i < vertices.Count; i++)
-        //    {
-        //        vertices[i].LOS.Add(vertices[i]);
-        //        vertices[i].LOS.Add(vertices[(i + 1) % vertices.Count]);
-        //        vertices[i].LOS.Add(vertices[Math.Abs((i - 1) % vertices.Count)]);
-        //        for (var j = 0; j < i; j++)
-        //        {
-        //            if (!vertices[i].LOS.Contains(vertices[j]))
-        //            {
-        //                for (var k = 0; k < vertices.Count; k++)
-        //                {
-        //                    var blocked = false;
-        //                    if ((i != k && j != k) && !blocked)
-        //                    {
-        //                        if (comp.DoLineSegmentsIntersect(vertices[i].x, vertices[i].y, vertices[j].x, vertices[j].y, vertices[k].x, vertices[k].y, vertices[(k + 1) % vertices.Count].x, vertices[(k + 1) % vertices.Count].y))
-        //                        {
-        //                            blocked = true;
-        //                        }
-        //                    }
-        //                    if (!blocked)
-        //                    {
-        //                        vertices[i].LOS.Add(vertices[j]);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private void calculateMinimumVisibilityIndependentSet()
-        //{
-        //    List<Vertex> convexVertices = new List<Vertex>(vertices.Except(reflexVertices));
-        //    List<Vertex> midpointVerticesOfConsecutiveReflexEdges = new List<Vertex>();
-        //    for (var i = 0; i < vertices.Count;i++)
-        //    {
-        //        if (reflexVertices.Contains(vertices[i]) && reflexVertices.Contains(vertices[(i+1)%vertices.Count]))
-        //        {
-        //            var x = (vertices[i].x + vertices[(i+1)%vertices.Count].x)/2;
-        //            var y = (vertices[i].y + vertices[(i+1)%vertices.Count].y)/2;
-        //            midpointVerticesOfConsecutiveReflexEdges.Add(new Vertex(x,y));
-        //        }
-        //    }
-        //    List<Vertex> C = new List<Vertex>(convexVertices.Union(midpointVerticesOfConsecutiveReflexEdges));
-        //    List<Vertex> miniumGuardSet = new List<Vertex>();
-        //    for (var i = 0; i < C.Count; i++)
-        //    {
-        //        // determine coverage area
-        //    }
-        //    while (C.Count > 0)
-        //    {
-        //        // add smallest area vertex to minimumGuardSet
-        //        // remove that vertex from C
-        //        // remove any other vertices that cover any of the same area that is already in the minimum set
-        //    }
-        //}
-
         private void minimalGuardSet()
         {
             List<CPoint2D> C = new List<CPoint2D>();
@@ -262,13 +192,14 @@ namespace FormsPolygonGenerator
             }
         }
 
-        private void performGA(int generationCount)
+        private void performGA(int generationCount, int populationCount)
         {
-            GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount, polygon);
+            GeneticAlgorithm ga = new GeneticAlgorithm(r, population, generationCount, polygon, populationCount);
             ga.performGA();
             this.GASolution = new List<Vertex>(ga.population[0]);
             GAtime = ga.timeElapsed;
             GAavgFitness = ga.averageFitness.ToString("#.###");
+            this.population = new List<List<Vertex>>(ga.population);
         }
 
         private void performWOC()

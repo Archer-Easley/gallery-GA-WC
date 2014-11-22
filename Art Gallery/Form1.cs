@@ -24,10 +24,10 @@ namespace FormsPolygonGenerator
         {
             InitializeComponent();
             this.WindowState = FormWindowState.Maximized;
-            tb_numPoints.Text = "27";
+            tb_numPoints.Text = "11";
             panel1.BackColor = Color.White;
             tb_generationCount.Text = "20";
-            tb_populationCount.Text = "100";
+            tb_populationCount.Text = "20";
             textBox1.Text = "0";
             this.Name = "Art Gallery";
             this.Text = "Art Gallery";
@@ -43,144 +43,20 @@ namespace FormsPolygonGenerator
             map.Solve(points, int.Parse(tb_generationCount.Text), int.Parse(tb_populationCount.Text));
             updateLabels();
             panel1.Invalidate();
-
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = panel1.CreateGraphics();
 
-            //get all necessary colors
+            List<Color> names = getColors();
             SolidBrush b;
-            KnownColor[] knownNames = (KnownColor[])Enum.GetValues(typeof(KnownColor));
-            List<Color> names = new List<Color>();
-            Color tempColor;
-            int index;
-            if (init)
-            {
-                for (int i = 0; i < Math.Max(map.GASolution.Count, map.WoCSolution.Count); i++)
-                {
-                    tempColor = new Color();
-                    tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
-                    names.Add(tempColor);
-                    index = i;
-                }
 
-                if(names.Contains(Color.Black)) //ensure no area gets painted black; used for default vertex color
-                {
-                    names.Remove(Color.Black);
-                    do
-                    {
-                        tempColor = new Color();
-                        tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
-                    } while (tempColor == Color.Black);
-                    names.Add(tempColor);
-                }
-            }
-
-            List<PointF> temp;
-            if (init && GuardAreas.Count == 0)
-            {
-                //draw the guard Areas
-                if (rb_GA.Checked) //draw GA solution
-                {
-                    for (int i = 0; i < map.GASolution.Count; i++)
-                    {
-                        temp = new List<PointF>(convertToGUIPolygon(map.GASolution[i].LOS));
-                        b = new SolidBrush(names[i]);
-                        g.FillPolygon(b, temp.ToArray()); //draws guard areas
-
-                        foreach(Vertex v in map.GASolution) //fill in guard vertex with same color, black if no guard area
-                        {
-                            if(v.hasGuard)
-                            {
-                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
-                            }
-                            else
-                            {
-                                b = new SolidBrush(Color.Black);
-                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
-                            }
-                        }
-                    }
-                }
-                else //draw WoC solution
-                {
-                    for (int i = 0; i < map.WoCSolution.Count; i++)
-                    {
-                        temp = new List<PointF>(convertToGUIPolygon(map.WoCSolution[i].LOS));
-                        b = new SolidBrush(names[i]);
-                        g.FillPolygon(b, temp.ToArray());
-
-                        foreach(Vertex v in map.WoCSolution)
-                        {
-                            if(v.hasGuard)
-                            {
-                                g.FillEllipse(b, v.x - 5, v.y - 5, 10, 10);
-                            }
-                        }
-                    }
-                }
-            }
-
-            //leave for individual guard area drawing
-            for (int i = 0; i < GuardAreas.Count; i++)
-            {
-                temp = new List<PointF>(convertToGUIPolygon(GuardAreas[i]));
-                b = new SolidBrush(names[i]);
-                g.FillPolygon(b, temp.ToArray());
-            }
-
-            //draw the lines
-            for (int i = 0; i < points.Count - 1; i++)
-            {
-                g.DrawLine(Pens.Black, points[i], points[i + 1]);
-            }
-
-            //draw final connection
-            if(init)
-                g.DrawLine(Pens.Black, points[points.Count - 1], points[0]);
-
-            //draw vertices
-            for (int i = 0; i < points.Count; i++)
-            {
-                g.DrawEllipse(Pens.Black, points[i].X - 5, points[i].Y - 5, 10, 10);
-                SolidBrush br = new SolidBrush(Color.Black);
-                g.FillEllipse(br, points[i].X - 5, points[i].Y - 5, 10, 10);
-            }
-
-            ////Fill vertex in with red if it's a guard
-            //if (init)
-            //{
-            //    SolidBrush br = new SolidBrush(Color.Red);
-            //    g.FillEllipse(br, points[int.Parse(textBox1.Text)].X - 5, points[int.Parse(textBox1.Text)].Y - 5, 10, 10);
-            //}
-
-            if(init)
-            {
-                if(rb_GA.Checked)
-                {
-                    foreach(Vertex v in map.GASolution)
-                    {
-                        if(v.hasGuard)
-                        {
-                            SolidBrush br = new SolidBrush(Color.Red);
-                            g.FillEllipse(br, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (Vertex v in map.WoCSolution)
-                    {
-                        if (v.hasGuard)
-                        {
-                            SolidBrush br = new SolidBrush(Color.Red);
-                            g.FillEllipse(br, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
-                        }
-                    }
-                }
-            }
+            drawGAorWoC(g, names);
+            drawIndividualGuardAreas(g, names);
+            drawLines(g);
+            drawAllVertices(g);
+            drawReflexVertices(g);
         }
 
         #region Graphics Helpers
@@ -305,6 +181,140 @@ namespace FormsPolygonGenerator
             lbl_GAavg.Text = "GA Average: " + map.GAavgFitness;
         }
 
+        private List<Color> getColors()
+        {
+            KnownColor[] knownNames = (KnownColor[])Enum.GetValues(typeof(KnownColor));
+            List<Color> names = new List<Color>();
+            Color tempColor;
+            int index;
+            if (init)
+            {
+                for (int i = 0; i < Math.Max(map.GASolution.Count, map.WoCSolution.Count); i++)
+                {
+                    tempColor = new Color();
+                    tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
+                    names.Add(tempColor);
+                    index = i;
+                }
+
+                if (names.Contains(Color.Black)) //ensure no area gets painted black; used for default vertex color
+                {
+                    names.Remove(Color.Black);
+                    do
+                    {
+                        tempColor = new Color();
+                        tempColor = ControlPaint.Dark(Color.FromKnownColor(knownNames[r.Next(knownNames.Length)]));
+                    } while (tempColor == Color.Black);
+                    names.Add(tempColor);
+                }
+            }
+            return names;
+        }
+
+        private void drawGAorWoC(Graphics g, List<Color> names)
+        {
+            List<PointF> temp;
+            SolidBrush b;
+            if (init && GuardAreas.Count == 0)
+            {
+                //draw the guard Areas
+                if (rb_GA.Checked) //draw GA solution
+                {
+                    for (int i = 0; i < map.GASolution.Count; i++)
+                    {
+                        temp = new List<PointF>(convertToGUIPolygon(map.GASolution[i].LOS));
+                        b = new SolidBrush(names[i]);
+                        g.FillPolygon(b, temp.ToArray()); //draws guard areas
+                    }
+                }
+                else //draw WoC solution
+                {
+                    for (int i = 0; i < map.WoCSolution.Count; i++)
+                    {
+                        temp = new List<PointF>(convertToGUIPolygon(map.WoCSolution[i].LOS));
+                        b = new SolidBrush(names[i]);
+                        g.FillPolygon(b, temp.ToArray());
+                    }
+                }
+            }
+        }
+
+        private void drawIndividualGuardAreas(Graphics g, List<Color> names)
+        {
+            List<PointF> temp;
+            SolidBrush b;
+            //leave for individual guard area drawing
+            for (int i = 0; i < GuardAreas.Count; i++)
+            {
+                temp = new List<PointF>(convertToGUIPolygon(GuardAreas[i]));
+                b = new SolidBrush(names[i]);
+                g.FillPolygon(b, temp.ToArray());
+            }
+        }
+
+        private void drawLines(Graphics g)
+        {
+            //draw the lines
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                g.DrawLine(Pens.Black, points[i], points[i + 1]);
+            }
+
+            //draw final connection
+            if (init)
+                g.DrawLine(Pens.Black, points[points.Count - 1], points[0]);
+        }
+        
+        private void drawReflexVertices(Graphics g)
+        {
+            SolidBrush red = new SolidBrush(Color.Red);
+            SolidBrush black = new SolidBrush(Color.Black);
+
+            if (init)
+            {
+                if (rb_GA.Checked)
+                {
+                    foreach (Vertex v in map.GASolution)
+                    {
+                        if (v.hasGuard)
+                        {
+                            g.FillEllipse(red, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                        else
+                        {
+                            g.FillEllipse(black, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Vertex v in map.WoCSolution)
+                    {
+                        if (v.hasGuard)
+                        {
+                            g.FillEllipse(red, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                        else
+                        {
+                            g.FillEllipse(black, points[v.ID].X - 5, points[v.ID].Y - 5, 10, 10);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void drawAllVertices(Graphics g)
+        {
+            SolidBrush black = new SolidBrush(Color.Black);
+            if(init)
+            {
+                foreach(Point p in points)
+                {
+                    g.FillEllipse(black, p.X - 5, p.Y - 5, 10, 10);
+                }
+            }
+        }
+
         #endregion
 
         #region testing
@@ -357,6 +367,7 @@ namespace FormsPolygonGenerator
 
         #endregion
 
+        #region Graphic Event Handlers
         private void button1_Click(object sender, EventArgs e)
         {
             GuardAreas.Clear();
@@ -430,6 +441,6 @@ namespace FormsPolygonGenerator
             GuardAreas.Clear();
             panel1.Invalidate();
         }
-
+        #endregion
     }
 }

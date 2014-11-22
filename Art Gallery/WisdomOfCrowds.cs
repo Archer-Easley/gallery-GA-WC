@@ -50,7 +50,7 @@ namespace FormsPolygonGenerator
         public void createWOCSolution()
         {
             //sort population by descending LOS count, frequency of vertex in the population
-            agreementList.OrderByDescending(x => x.vert.polygonArea).ThenByDescending(x => x.freq);
+            agreementList = agreementList.OrderByDescending(x => x.vert.polygonArea).ThenByDescending(x => x.freq).ToList();
 
             //add first vertex and create unionable polygon
             guardVertex.Add(agreementList[0].vert);
@@ -62,9 +62,10 @@ namespace FormsPolygonGenerator
             double tempArea = double.MinValue;
             double blahArea = 0;
             int index = 0;
+            double tempDiff;
 
             //add guards until whole area is complete
-            while(Math.Round(unionSet.PolygonArea()) != Math.Round(totalArea)) //allows no fp precision issues
+            while((tempDiff = Math.Abs(Math.Round(blahArea) - Math.Round(totalArea))) > 1) //allows no fp precision issues
             {
                 biggestArea = double.MinValue;
 
@@ -81,9 +82,14 @@ namespace FormsPolygonGenerator
                 }
                 //add that point's LOS to unionSet polygon
                 unionSet = new CPolygon(map.JoinPolygon(unionSet, biggest).ToArray());
-
+                blahArea = unionSet.PolygonArea();
                 //add point to the guard vertex list
                 guardVertex.Add(agreementList[index].vert);
+                if (guardVertex.Count > agreementList.Count)
+                {
+                    guardVertex.Clear();
+                    break;
+                }
             }
         }
     }

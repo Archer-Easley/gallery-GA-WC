@@ -46,11 +46,13 @@ namespace FormsPolygonGenerator
         {
             bool firstGuard = true;
             CPolygon temp = new CPolygon();
+            CPolygon tempEmpty = new CPolygon();
             foreach(Vertex v in vertexList)
             {
                 if(v.hasGuard && firstGuard)
                 {
                     temp = new CPolygon(v.LOS.m_aVertices);
+                    firstGuard = false;
                 }
                 else if(v.hasGuard)
                 {
@@ -67,7 +69,11 @@ namespace FormsPolygonGenerator
                         tempPoint.Y = 0;
                         tempArray[i] = tempPoint;
                     }
-                    temp = new CPolygon(tempArray);
+                    tempEmpty = new CPolygon(tempArray);
+                    if (temp.m_aVertices != null)
+                        temp = new CPolygon(map.JoinPolygon(temp, tempEmpty).ToArray());
+                    else
+                        temp = tempEmpty;
                 }
             }
             unionedPolygon = temp;

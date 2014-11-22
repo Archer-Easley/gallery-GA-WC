@@ -638,22 +638,22 @@ namespace GeometryUtility
                         }
                         else if (line.GetYmax() == line.StartPoint.Y)
                         {
-                            PointsOnLine.OrderByDescending(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderByDescending(x => x.Y).ToList();
                         }
                         else
                         {
-                            PointsOnLine.OrderBy(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderBy(x => x.Y).ToList();
                         }
                     }
                     else if (line.GetLineAngle() < 0)
                     {
                         if (line.GetYmax() == line.StartPoint.Y)
                         {
-                            PointsOnLine.OrderByDescending(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderByDescending(x => x.Y).ToList();
                         }
                         else
                         {
-                            PointsOnLine.OrderBy(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderBy(x => x.Y).ToList();
                         }
                     }
                 }
@@ -697,22 +697,22 @@ namespace GeometryUtility
                         }
                         else if (line.GetYmax() == line.StartPoint.Y)
                         {
-                            PointsOnLine.OrderByDescending(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderByDescending(x => x.Y).ToList();
                         }
                         else
                         {
-                            PointsOnLine.OrderBy(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderBy(x => x.Y).ToList();
                         }
                     }
                     else if (line.GetLineAngle() < 0)
                     {
                         if (line.GetYmax() == line.StartPoint.Y)
                         {
-                            PointsOnLine.OrderByDescending(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderByDescending(x => x.Y).ToList();
                         }
                         else
                         {
-                            PointsOnLine.OrderBy(x => x.Y);
+                            PointsOnLine = PointsOnLine.OrderBy(x => x.Y).ToList();
                         }
                     }
                 }

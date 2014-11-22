@@ -18,18 +18,20 @@ namespace FormsPolygonGenerator
         private double mapSize;
         public string timeElapsed;
         public double averageFitness;
+        private double populationCount;
 
-        public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount, CPolygon masterMap)
+        public GeneticAlgorithm(Random rand, List<List<Vertex>> pop, int tempGenCount, CPolygon masterMap, int populationCount)
         {
             r = rand; //avoids having multiple instances of the Random class
-            Organism temp;
-            foreach(List<Vertex> lv in pop)
-            {
-                temp = new Organism(lv);
-                popOrg.Add(temp);
-            }
+            //Organism temp;
+            //foreach(List<Vertex> lv in pop)
+            //{
+            //    temp = new Organism(lv);
+            //    popOrg.Add(temp);
+            //}
             this.generationCount = tempGenCount;
             this.map = masterMap;
+            this.populationCount = populationCount;
         }
 
         private void mutate(Organism points)
@@ -50,6 +52,7 @@ namespace FormsPolygonGenerator
             points.vertexList[rand2].hasGuard = true; //add a guard to the vertex
 
             //no need to evaluate fitness; will only ever add a guard, then subtract a guard, giving the same fitness
+            points.getUnionedPolygon(map);
         }
 
         private void crossover(Organism points1, Organism points2)
@@ -90,8 +93,100 @@ namespace FormsPolygonGenerator
             temp1.determineFitness();
             temp2.determineFitness();
 
+            temp1.getUnionedPolygon(map);
+            temp2.getUnionedPolygon(map);
+
             popOrg.Add(temp1);
             popOrg.Add(temp2);
+        }
+
+        private void generatePopulation()
+        {
+            //populate list of vertices for organism
+            List<Vertex> tempList;
+            Vertex temp;
+            mapSize = map.PolygonArea();
+            int randIndex;
+            for (int i = 0; i < populationCount; i++)
+            {
+                tempList = new List<Vertex>();
+                for (int j = 0; j < map.m_aVertices.Length; j++)//(CPoint2D p in polygon.m_aVertices)
+                {
+                    if (map.PolygonVertexType(map.m_aVertices[j]).Equals(VertexType.ConcavePoint))
+                    {
+                        temp = new Vertex();
+                        temp.x = (float)map.m_aVertices[j].X;
+                        temp.y = (float)map.m_aVertices[j].Y;
+                        temp.ID = j;
+                        tempList.Add(temp);
+                    }
+                }
+                popOrg.Add(new Organism(tempList));
+            }
+
+            //populate LOS for a vertex only once, then copy to other vertices
+            foreach(Vertex v in popOrg[0].vertexList)
+            {
+                v.getLOS(map);
+            }
+
+            for (int i = 1; i < popOrg.Count; i++)
+            {
+                for(int j = 0; j < popOrg[0].vertexList.Count; j++)
+                {
+                    popOrg[i].vertexList[j].LOS = popOrg[0].vertexList[j].LOS;
+                }
+            }
+
+            //for each member of the population, add guards until solution is valid
+            double blahArea;
+            for (int i = 0; i < popOrg.Count; i++)
+            {
+                while ((blahArea = Math.Round(popOrg[i].polygonArea)) < Math.Round(mapSize))
+                {
+                    do
+                    {
+                        randIndex = r.Next(popOrg[i].vertexList.Count);
+                    } while (popOrg[i].vertexList[randIndex].hasGuard == true);
+                    popOrg[i].vertexList[randIndex].hasGuard = true;
+                    popOrg[i].getUnionedPolygon(map);
+                }
+            }
+            //for (int i = 0; i < popOrg.Count; i++)
+            //{
+            //    //get first guard to prevent unionedPolygon from being null
+            //    randIndex = r.Next(popOrg[i].vertexList.Count);
+            //    popOrg[i].vertexList[randIndex].hasGuard = true;
+            //    popOrg[i].getUnionedPolygon(map);
+            //    double maxArea = popOrg[i].polygonArea;
+            //    int maxIndex = -1;
+            //    double blahArea;
+
+            //    //for each Organism, set random guards until solution is valid
+            //    while ((blahArea = Math.Round(popOrg[i].unionedPolygon.PolygonArea())) < Math.Round(mapSize))
+            //    {
+            //        Organism tempMax = new Organism(popOrg[i]);
+            //        //find vertex that when given a guard, adds the most area to the shape
+            //        for (int j = 0; j < tempMax.vertexList.Count; j++)
+            //        {
+            //            if (j == randIndex)
+            //                j++; //make sure to not count initial guard
+            //            if (j == tempMax.vertexList.Count)
+            //                break; //if initial guard was last item in the list, break from the loop
+            //            tempMax.vertexList[j].hasGuard = true;
+            //            tempMax.getUnionedPolygon(map);
+            //            tempMax.vertexList[j].hasGuard = false; //reset to not throw off values from 
+            //            if (tempMax.polygonArea > maxArea)
+            //            {
+            //                maxArea = tempMax.unionedPolygon.PolygonArea();
+            //                maxIndex = j;
+            //            }
+            //        }
+            //        //puts biggest area coverage guard at index
+            //        popOrg[i].vertexList[maxIndex].hasGuard = true;
+            //        popOrg[i].getUnionedPolygon(map);
+            //    }
+            //}
         }
 
         public void performGA()
@@ -100,18 +195,19 @@ namespace FormsPolygonGenerator
             int randCrossoverIndex1;
             int randCrossoverIndex2;
             int randNumCrossovers = r.Next(popOrg.Count);
+
+            Stopwatch t = new Stopwatch();
+            t.Reset();
+            t.Start();
+            generatePopulation();
             int origPopCount = popOrg.Count;
 
             //initialize fitness for each organism
             foreach(Organism o in popOrg)
             {
                 o.determineFitness();
-                o.getUnionedPolygon(map);
             }
 
-            Stopwatch t = new Stopwatch();
-            t.Reset();
-            t.Start();
             //iterate through generations
             for (int j = 0; j < generationCount; j++)
             {
@@ -135,14 +231,20 @@ namespace FormsPolygonGenerator
                     mutate(popOrg[randMutationIndex]);
                 }
 
-                //join polygons
+                //join polygons and determine fitness
                 foreach(Organism o in popOrg)
                 {
                     o.getUnionedPolygon(map);
+                    o.determineFitness();
                 }
 
                 //sort by fitness
-                popOrg.OrderByDescending(x => x.polygonArea).ThenBy(x => x.fitness);
+                //popOrg = new List<Organism>(popOrg.OrderByDescending(x => x.polygonArea).ThenBy(x => x.fitness).ToList());
+                popOrg.Sort(delegate(Organism o1, Organism o2)
+                {
+                    return o1.fitness.CompareTo(o2.fitness);
+                });
+                popOrg.Reverse();
 
                 //remove least fit
                 popOrg.RemoveRange(origPopCount, popOrg.Count - origPopCount);
@@ -150,23 +252,29 @@ namespace FormsPolygonGenerator
 
             //remove invalid answers, then sort by just fitness
             mapSize = Math.Round(map.PolygonArea());
-            for(int i = 0; i < popOrg.Count; i++)
+            for (int i = 0; i < popOrg.Count; i++)
             {
-                if(mapSize == Math.Round(popOrg[i].polygonArea))
+                if (mapSize != Math.Round(popOrg[i].polygonArea))
                 {
                     popOrg.RemoveAt(i);
                 }
             }
-            popOrg.OrderBy(x => x.fitness);
+            
+            //popOrg = new List<Organism>(popOrg.OrderBy(x => x.fitness).ToList());
+            popOrg.Sort(delegate(Organism o1, Organism o2)
+            {
+                return o1.fitness.CompareTo(o2.fitness);
+            });
+            popOrg.Reverse();
 
             t.Stop();
             timeElapsed = t.Elapsed.ToString();
 
             //populate population in form of List<List<Vertex>> to pass to presenter, and calculate average fitness
-            foreach(Organism o in popOrg)
+            for (int i = 0; i < popOrg.Count; i++)
             {
-                population.Add(o.vertexList);
-                averageFitness += o.fitness;
+                population.Add(popOrg[i].vertexList);
+                averageFitness += popOrg[i].fitness;
             }
             averageFitness = averageFitness / popOrg.Count;
         }
